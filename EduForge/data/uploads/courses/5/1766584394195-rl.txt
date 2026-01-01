@@ -1,0 +1,28 @@
+Module 1 : Fondements et Concepts Clés
+1.1 Définition et Philosophie
+L'apprentissage par renforcement est une branche de l'intelligence artificielle où un agent apprend à prendre des décisions en interagissant avec un environnement. Contrairement à l'apprentissage supervisé où on fournit des exemples étiquetés, ici l'apprentissage se fait par essai et erreur, guidé par des récompenses et des punitions.
+Analogie pédagogique : Imaginez un enfant qui apprend à marcher. Il fait un pas (action), observe s'il avance ou tombe (état suivant), et reçoit un feedback (joie d'avancer vs. douleur de tomber). Progressivement, il optimise sa "politique" de marche.
+1.2 Les Cinq Composants Essentiels
+A. L'Agent (Agent)
+L'entité qui apprend et prend des décisions
+Peut être un robot, un logiciel, un joueur de jeux
+Possède une "politique" qui guide ses choix
+B. L'Environnement (Environment)
+Le monde avec lequel l'agent interagit
+Peut être simulé (jeu vidéo) ou réel (route pour une voiture autonome)
+Répond aux actions de l'agent
+C. Les États (States)
+Représentation de la situation actuelle
+Exemple : position d'un joueur sur un échiquier, image perçue par une caméra
+L'espace des états peut être fini ou infini
+D. Les Actions (Actions)
+Choix possibles pour l'agent à chaque état
+Exemple : avancer, reculer, tourner à gauche
+Peut être discret (quelques boutons) ou continu (angle de volant)
+E. Les Récompenses (Rewards)
+Signal scalaire immédiat reçu après chaque action
+Crucial : C'est le seul signal d'apprentissage !
+Une récompense positive renforce un comportement, une négative le punit
+1.3 Processus de Décision Markovien (MDP)
+Le MDP est le cadre mathématique qui formalise le problème. Même sans formules, comprenez qu'il garantit que l'état suivant ne dépend que de l'état actuel et de l'action prise (propriété de Markov).
+Intuition : Pour décider quoi faire maintenant, vous n'avez pas besoin de tout l'historique, juste de la situation présente.
