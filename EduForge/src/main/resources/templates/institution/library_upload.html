@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="bi bi-cloud-upload me-2"></i>Ajouter une ressource
+          </h4>
+        </div>
+        <div class="card-body">
+          <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+          <form th:action="@{/institution/library/upload}" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label class="form-label">Titre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="title" required 
+                     placeholder="Ex: Cours d'Algèbre Linéaire">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" rows="3" 
+                        placeholder="Description optionnelle..."></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Catégorie</label>
+              <select class="form-select" name="category">
+                <option value="">— Sélectionner —</option>
+                <option value="cours">Cours</option>
+                <option value="examens">Examens</option>
+                <option value="td">TD/TP</option>
+                <option value="memoires">Mémoires</option>
+                <option value="articles">Articles</option>
+                <option value="autres">Autres</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Auteur</label>
+              <input type="text" class="form-control" name="author" 
+                     placeholder="Nom de l'auteur (optionnel)">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">ISBN</label>
+              <input type="text" class="form-control" name="isbn" 
+                     placeholder="Code ISBN (optionnel)">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Année de publication</label>
+              <input type="number" class="form-control" name="publishedYear" min="1900" max="2100"
+                     placeholder="Ex: 2024">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">Fichier <span class="text-danger">*</span></label>
+              <input type="file" class="form-control" name="file" accept=".pdf,.txt" required>
+              <small class="text-muted">Fichiers PDF ou TXT acceptés (max 50 MB)</small>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-upload me-2"></i>Téléverser
+              </button>
+              <a th:href="@{/institution/library}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

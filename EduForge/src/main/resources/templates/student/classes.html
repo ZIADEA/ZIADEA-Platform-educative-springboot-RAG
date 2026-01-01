@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">
+      <i class="bi bi-collection me-2"></i>Mes classes
+    </h2>
+  </div>
+
+  <div th:if="${formError}" class="alert alert-danger alert-dismissible fade show">
+    <i class="bi bi-x-circle me-2"></i><span th:text="${formError}">Erreur</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Formulaire pour rejoindre une classe -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <i class="bi bi-door-open me-2"></i>Rejoindre une classe
+    </div>
+    <div class="card-body">
+      <form th:action="@{/student/classes/join}" th:object="${joinForm}" method="post" class="row g-3 align-items-end">
+        <div class="col-12 col-md-8">
+          <label class="form-label">Code de la classe</label>
+          <input class="form-control form-control-lg text-center font-monospace" 
+                 th:field="*{code}" placeholder="Ex: 7K9P2XQH" 
+                 style="letter-spacing: 3px; text-transform: uppercase;">
+          <div class="form-text">Demande le code à ton professeur</div>
+        </div>
+        <div class="col-12 col-md-4">
+          <button class="btn btn-primary btn-lg w-100">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Rejoindre
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Liste des classes -->
+  <div th:if="${#lists.isEmpty(enrollments)}" class="text-center py-5">
+    <i class="bi bi-collection fs-1 text-muted d-block mb-3"></i>
+    <h5 class="text-muted">Tu n'es inscrit à aucune classe</h5>
+    <p class="text-muted">Utilise le code fourni par ton professeur pour rejoindre une classe.</p>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${#lists.isEmpty(enrollments)}">
+    <div class="col" th:each="e : ${enrollments}">
+      <th:block th:with="classroom=${classroomsMap.get(e.classroomId)}">
+        <div class="card h-100 shadow-sm classroom-card" th:if="${classroom != null}">
+          <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0" th:text="${classroom.title}">Nom de la classe</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <span class="badge bg-light text-dark font-monospace fs-6 me-2">
+                <i class="bi bi-key me-1"></i>
+                <span th:text="${classroom.code}">CODE</span>
+              </span>
+            </div>
+            <ul class="list-unstyled small text-muted mb-0">
+              <li class="mb-1">
+                <i class="bi bi-people me-2"></i>
+                <span th:text="${classroomService.countStudents(classroom.id)}">0</span> étudiants
+              </li>
+              <li class="mb-1">
+                <i class="bi bi-book me-2"></i>
+                <span th:text="${classroomService.countCourses(classroom.id)}">0</span> cours
+              </li>
+              <li>
+                <i class="bi bi-calendar-check me-2"></i>
+                Rejoint le <span th:text="${#temporals.format(e.joinedAt, 'dd/MM/yyyy')}">Date</span>
+              </li>
+            </ul>
+          </div>
+          <div class="card-footer bg-transparent">
+            <a th:href="@{/student/classes/{id}(id=${classroom.id})}" class="btn btn-primary w-100">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Accéder à la classe
+            </a>
+          </div>
+        </div>
+      </th:block>
+    </div>
+  </div>
+
+  <style>
+    .classroom-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .classroom-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .classroom-card .card-header {
+      background: linear-gradient(135deg, var(--bs-primary) 0%, #4f46e5 100%) !important;
+    }
+  </style>
+</div>
+</html>

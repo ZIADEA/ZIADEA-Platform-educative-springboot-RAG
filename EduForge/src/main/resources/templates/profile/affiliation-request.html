@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0"><i class="bi bi-building me-2"></i>Demande d'affiliation</h2>
+    <a th:href="@{/profile}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Retour au profil
+    </a>
+  </div>
+
+  <!-- Demandes en attente -->
+  <div th:if="${hasPendingRequest}" class="card shadow-sm mb-4 border-warning">
+    <div class="card-header bg-warning-subtle">
+      <h5 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>Demandes en attente</h5>
+    </div>
+    <div class="card-body">
+      <div th:each="request : ${pendingRequests}" class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+          <span class="badge bg-warning text-dark me-2">En attente</span>
+          <span th:text="${institutions.?[id == request.institutionId][0]?.name ?: 'Institution #' + request.institutionId}"></span>
+          <small class="text-muted ms-2" th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}"></small>
+        </div>
+        <form th:action="@{/affiliation/cancel/{id}(id=${request.id})}" method="post" class="d-inline">
+          <button type="submit" class="btn btn-outline-danger btn-sm"
+                  onclick="return confirm('Voulez-vous vraiment annuler cette demande ?')">
+            <i class="bi bi-x-lg"></i> Annuler
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire de nouvelle demande -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">Nouvelle demande</h5>
+    </div>
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(institutions)}" class="text-center py-4">
+        <i class="bi bi-building-x fs-1 text-muted"></i>
+        <p class="text-muted mt-2">Aucune institution disponible pour le moment.</p>
+      </div>
+
+      <form th:if="${!#lists.isEmpty(institutions)}" th:action="@{/affiliation/request}" 
+            th:object="${form}" method="post">
+        <div class="mb-3">
+          <label class="form-label">Institution <span class="text-danger">*</span></label>
+          <select class="form-select" th:field="*{institutionId}"
+                  th:classappend="${#fields.hasErrors('institutionId')} ? 'is-invalid'">
+            <option value="">-- Sélectionnez une institution --</option>
+            <option th:each="inst : ${institutions}" 
+                    th:value="${inst.id}" 
+                    th:text="${inst.name + ' (' + inst.city + ')'}"></option>
+          </select>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('institutionId')}" 
+               th:errors="*{institutionId}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Message (optionnel)</label>
+          <textarea class="form-control" rows="3" th:field="*{message}"
+                    placeholder="Présentez-vous brièvement à l'institution..."></textarea>
+          <div class="form-text">Ce message sera visible par le gestionnaire de l'institution.</div>
+        </div>
+
+        <div class="alert alert-info small">
+          <i class="bi bi-info-circle me-2"></i>
+          Votre demande sera examinée par le gestionnaire de l'institution. 
+          Vous serez notifié(e) de la décision.
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-send me-1"></i>Envoyer la demande
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+</html>

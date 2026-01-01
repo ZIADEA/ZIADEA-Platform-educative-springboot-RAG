@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="container-fluid">
+    <!-- En-tête avec timer -->
+    <div class="sticky-top bg-white border-bottom py-3 mb-4" th:if="${exam.isTimed}">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0" th:text="${exam.title}">Examen</h4>
+        <div class="d-flex align-items-center">
+          <i class="bi bi-clock fs-4 me-2 text-danger"></i>
+          <span id="timer" class="fs-4 fw-bold text-danger" 
+                th:data-duration="${exam.durationMinutes}">--:--</span>
+        </div>
+      </div>
+    </div>
+
+    <form th:action="@{/student/exam/{id}/submit(id=${exam.id})}" method="post" id="examForm">
+      <input type="hidden" name="attemptId" th:value="${attempt.id}">
+
+      <!-- Questions -->
+      <div class="row">
+        <div class="col-lg-9">
+          <div th:each="q, idx : ${questions}" class="card mb-4 question-card" th:id="'q-' + ${idx.count}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Question <span th:text="${idx.count}">1</span> / <span th:text="${#lists.size(questions)}">10</span></span>
+            </div>
+            <div class="card-body">
+              <p class="fs-5 mb-4" th:text="${q.questionText}">Question</p>
+
+              <!-- QCM -->
+              <div th:if="${q.questionType.name() == 'MCQ'}" class="list-group">
+                <label class="list-group-item d-flex align-items-center" th:if="${q.aText != null and !q.aText.isEmpty()}">
+                  <input class="form-check-input me-3" type="radio" 
+                         th:name="'answer_' + ${q.id}" value="A" required>
+                  <span><strong class="me-2">A)</strong> <span th:text="${q.aText}">Choix A</span></span>
+                </label>
+                <label class="list-group-item d-flex align-items-center" th:if="${q.bText != null and !q.bText.isEmpty()}">
+                  <input class="form-check-input me-3" type="radio" 
+                         th:name="'answer_' + ${q.id}" value="B">
+                  <span><strong class="me-2">B)</strong> <span th:text="${q.bText}">Choix B</span></span>
+                </label>
+                <label class="list-group-item d-flex align-items-center" th:if="${q.cText != null and !q.cText.isEmpty()}">
+                  <input class="form-check-input me-3" type="radio" 
+                         th:name="'answer_' + ${q.id}" value="C">
+                  <span><strong class="me-2">C)</strong> <span th:text="${q.cText}">Choix C</span></span>
+                </label>
+                <label class="list-group-item d-flex align-items-center" th:if="${q.dText != null and !q.dText.isEmpty()}">
+                  <input class="form-check-input me-3" type="radio" 
+                         th:name="'answer_' + ${q.id}" value="D">
+                  <span><strong class="me-2">D)</strong> <span th:text="${q.dText}">Choix D</span></span>
+                </label>
+              </div>
+
+              <!-- Question ouverte -->
+              <div th:if="${q.questionType.name() == 'OPEN_ENDED'}">
+                <textarea class="form-control" 
+                          th:name="'text_answer_' + ${q.id}" 
+                          rows="6" 
+                          required
+                          placeholder="Saisissez votre réponse ici... Soyez précis et détaillé."
+                          style="font-size: 1rem;"></textarea>
+                <div class="form-text mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Votre réponse sera évaluée automatiquement par notre IA. 
+                  Veillez à être clair et complet.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton soumettre -->
+          <div class="card bg-light">
+            <div class="card-body text-center">
+              <p class="text-muted">Assurez-vous d'avoir répondu à toutes les questions avant de soumettre.</p>
+              <button type="submit" class="btn btn-lg btn-success" 
+                      onclick="return confirm('Êtes-vous sûr de vouloir soumettre vos réponses?')">
+                <i class="bi bi-send me-2"></i>Soumettre mes réponses
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation rapide -->
+        <div class="col-lg-3">
+          <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header">
+              <i class="bi bi-grid me-2"></i>Navigation
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-2" id="questionNav">
+                <a th:each="q, idx : ${questions}" 
+                   th:href="'#q-' + ${idx.count}"
+                   class="btn btn-sm btn-outline-secondary question-nav-btn"
+                   th:id="'nav-' + ${idx.count}"
+                   th:text="${idx.count}">1</a>
+              </div>
+              <hr>
+              <div class="small text-muted">
+                <span class="badge bg-success me-1">&nbsp;</span> Répondu
+                <span class="badge bg-secondary ms-2 me-1">&nbsp;</span> Non répondu
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script th:inline="javascript">
+    // Timer
+    document.addEventListener('DOMContentLoaded', function() {
+      const timerEl = document.getElementById('timer');
+      if (timerEl) {
+        let duration = parseInt(timerEl.dataset.duration) * 60; // en secondes
+        
+        const updateTimer = () => {
+          const minutes = Math.floor(duration / 60);
+          const seconds = duration % 60;
+          timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          
+          if (duration <= 300) { // 5 dernières minutes
+            timerEl.classList.add('text-danger');
+          }
+          
+          if (duration <= 0) {
+            document.getElementById('examForm').submit();
+          }
+          
+          duration--;
+        };
+        
+        updateTimer();
+        setInterval(updateTimer, 1000);
+      }
+
+      // Mise à jour navigation quand répondu
+      document.querySelectorAll('input[type="radio"], textarea[name^="text_answer_"]').forEach(input => {
+        input.addEventListener('change', function() {
+          const questionNum = this.name.split('_')[1];
+          // Trouver l'index de cette question
+          const cards = document.querySelectorAll('.question-card');
+          cards.forEach((card, idx) => {
+            if (card.querySelector(`input[name="${this.name}"]`) || card.querySelector(`textarea[name="${this.name}"]`)) {
+              const navBtn = document.getElementById('nav-' + (idx + 1));
+              if (navBtn) {
+                navBtn.classList.remove('btn-outline-secondary');
+                navBtn.classList.add('btn-success');
+              }
+            }
+          });
+        });
+        
+        // Pour les textarea, écouter aussi 'input' pour détecter la saisie
+        if (input.tagName === 'TEXTAREA') {
+          input.addEventListener('input', function() {
+            if (this.value.trim().length > 0) {
+              this.dispatchEvent(new Event('change'));
+            }
+          });
+        }
+      });
+    });
+  </script>
+</div>
+</html>

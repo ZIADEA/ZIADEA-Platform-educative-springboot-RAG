@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">
+      <i class="bi bi-book me-2"></i>Mes documents de révision
+    </h2>
+    <div class="btn-group">
+      <a th:href="@{/student/reviewbook/upload}" class="btn btn-primary me-2">
+        <i class="bi bi-cloud-upload me-2"></i>Uploader un document
+      </a>
+      <a th:href="@{/student/reviewbook/generate}" class="btn btn-success">
+        <i class="bi bi-magic me-2"></i>Générer avec IA
+      </a>
+    </div>
+  </div>
+
+  <!-- Messages flash -->
+  <div th:if="${flashSuccess}" class="alert alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle me-2"></i><span th:text="${flashSuccess}">Succès</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <div th:if="${flashError}" class="alert alert-danger alert-dismissible fade show">
+    <i class="bi bi-x-circle me-2"></i><span th:text="${flashError}">Erreur</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Info -->
+  <div class="alert alert-info mb-4">
+    <i class="bi bi-lightbulb me-2"></i>
+    <strong>ReviewBook</strong> te permet d'uploader tes propres documents (PDF, TXT, images) 
+    et de générer des quiz personnalisés grâce à l'IA. L'OCR extrait automatiquement le texte des images !
+  </div>
+
+  <!-- Liste vide -->
+  <div th:if="${#lists.isEmpty(books)}" class="text-center py-5">
+    <i class="bi bi-journal-richtext fs-1 text-muted d-block mb-3"></i>
+    <h5 class="text-muted">Aucun document de révision</h5>
+    <p class="text-muted">Uploade un PDF, TXT ou une image pour commencer !</p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+      <i class="bi bi-cloud-upload me-2"></i>Uploader un document
+    </button>
+  </div>
+
+  <!-- Liste des documents -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${#lists.isEmpty(books)}">
+    <div class="col" th:each="book : ${books}">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span th:switch="${book.fileType.name()}">
+            <i th:case="'PDF'" class="bi bi-file-earmark-pdf text-danger fs-4"></i>
+            <i th:case="'TXT'" class="bi bi-file-earmark-text text-primary fs-4"></i>
+            <i th:case="'IMAGE'" class="bi bi-file-earmark-image text-success fs-4"></i>
+          </span>
+          <span th:switch="${book.status.name()}">
+            <span th:case="'PENDING'" class="badge bg-warning text-dark">
+              <i class="bi bi-hourglass-split me-1"></i>En attente
+            </span>
+            <span th:case="'PROCESSING'" class="badge bg-info">
+              <i class="bi bi-arrow-repeat spin me-1"></i>Traitement...
+            </span>
+            <span th:case="'READY'" class="badge bg-success">
+              <i class="bi bi-check-circle me-1"></i>Prêt
+            </span>
+            <span th:case="'FAILED'" class="badge bg-danger">
+              <i class="bi bi-x-circle me-1"></i>Erreur
+            </span>
+          </span>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title" th:text="${book.title}">Titre</h5>
+          <p class="card-text text-muted small">
+            <i class="bi bi-file-earmark me-1"></i>
+            <span th:text="${book.originalFilename}">fichier.pdf</span>
+          </p>
+          <p class="card-text text-muted small mb-0">
+            <i class="bi bi-calendar me-1"></i>
+            Ajouté le <span th:text="${#temporals.format(book.createdAt, 'dd/MM/yyyy HH:mm')}">Date</span>
+          </p>
+        </div>
+        <div class="card-footer bg-transparent">
+          <div class="d-flex gap-2">
+            <a th:href="@{/student/reviewbook/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary flex-grow-1">
+              <i class="bi bi-eye me-1"></i>Voir
+            </a>
+            <a th:href="@{/student/reviewbook/{id}/quiz(id=${book.id})}" 
+               class="btn btn-sm btn-success flex-grow-1"
+               th:if="${book.ready}">
+              <i class="bi bi-lightning me-1"></i>Quiz
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</div>
+</html>

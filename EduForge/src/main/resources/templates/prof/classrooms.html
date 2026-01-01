@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Professeur - Mes classes</h2>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form th:action="@{/prof/classrooms}" th:object="${form}" method="post" class="row g-2 align-items-end">
+        <div class="col-12 col-md-8">
+          <label class="form-label">Nom de la classe</label>
+          <input class="form-control" th:field="*{title}" placeholder="Ex: IA et Data - Groupe A">
+        </div>
+        <div class="col-12 col-md-4">
+          <button class="btn btn-primary w-100">Creer la classe</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(classes)}" class="text-muted">Aucune classe pour le moment.</div>
+
+      <div th:if="${!#lists.isEmpty(classes)}" class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Code</th>
+            <th>Creee</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="c : ${classes}">
+            <td>
+              <a th:href="@{/prof/classrooms/{id}(id=${c.id})}" class="text-decoration-none fw-bold" th:text="${c.title}"></a>
+            </td>
+            <td><span class="badge text-bg-dark" th:text="${c.code}"></span></td>
+            <td class="text-muted" th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+              <a th:href="@{/prof/classrooms/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-eye"></i> Voir
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="small text-muted mt-2">
+        Partage le code a tes etudiants pour qu'ils rejoignent la classe.
+      </div>
+    </div>
+  </div>
+</div>
+</html>

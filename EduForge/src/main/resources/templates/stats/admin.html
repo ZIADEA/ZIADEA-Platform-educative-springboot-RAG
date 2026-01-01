@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <h2 class="h4 mb-3">Admin — Statistiques</h2>
+
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm"><div class="card-body">
+        <div class="text-muted small">Cours</div>
+        <div class="display-6" th:text="${courseCount}"></div>
+      </div></div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm"><div class="card-body">
+        <div class="text-muted small">Tentatives quiz</div>
+        <div class="display-6" th:text="${attemptCount}"></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+</html>

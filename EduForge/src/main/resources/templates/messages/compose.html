@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">
+      <i class="bi bi-pencil-square me-2"></i>Nouveau message
+    </h2>
+    <a th:href="@{/messages/inbox}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Retour
+    </a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form th:action="@{/messages/compose}" method="post">
+        
+        <div class="mb-3">
+          <label for="receiverId" class="form-label">Destinataire <span class="text-danger">*</span></label>
+          <input type="text" class="form-control mb-2" id="recipientSearch" 
+                 placeholder="🔍 Rechercher par nom ou email..." 
+                 onkeyup="filterRecipients()">
+          <select class="form-select" id="receiverId" name="receiverId" required size="8">
+            <option value="">— Sélectionner un destinataire —</option>
+            <option th:each="r : ${recipients}" 
+                    th:value="${r.id}" 
+                    th:text="${r.fullName + ' (' + r.email + ') - ' + 
+                              (r.role.name() == 'PROF' ? 'Professeur' : 
+                               r.role.name() == 'ETUDIANT' ? 'Étudiant' : 
+                               r.role.name() == 'INSTITUTION_MANAGER' ? 'Institution' : 
+                               r.role.name() == 'ADMIN' ? 'Admin' : r.role.name())}"
+                    th:data-searchable="${r.fullName.toLowerCase() + ' ' + r.email.toLowerCase()}"
+                    th:selected="${replyToId != null && r.id == replyToId}">
+              Nom
+            </option>
+          </select>
+          <div class="form-text" th:if="${currentUserRole == 'INSTITUTION_MANAGER'}">
+            Seuls les membres approuvés de votre institution sont affichés.
+          </div>
+        </div>
+
+        <script>
+        function filterRecipients() {
+          const input = document.getElementById('recipientSearch');
+          const filter = input.value.toLowerCase();
+          const select = document.getElementById('receiverId');
+          const options = select.getElementsByTagName('option');
+          
+          for (let i = 1; i < options.length; i++) { // Skip first "Sélectionner" option
+            const searchable = options[i].getAttribute('data-searchable') || '';
+            if (searchable.includes(filter)) {
+              options[i].style.display = '';
+            } else {
+              options[i].style.display = 'none';
+            }
+          }
+        }
+        </script>
+
+        <div class="mb-3">
+          <label for="subject" class="form-label">Objet <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="subject" name="subject" required 
+                 maxlength="200" placeholder="Objet du message"
+                 th:value="${replyToSubject}">
+        </div>
+
+        <div class="mb-3">
+          <label for="content" class="form-label">Message <span class="text-danger">*</span></label>
+          <textarea class="form-control" id="content" name="content" rows="8" required 
+                    placeholder="Écrivez votre message..."></textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send me-1"></i>Envoyer
+          </button>
+          <a th:href="@{/messages/inbox}" class="btn btn-outline-secondary">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</html>

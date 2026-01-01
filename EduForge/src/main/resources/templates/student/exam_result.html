@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Résumé du résultat -->
+      <div class="card mb-4" th:classappend="${attempt.scorePercent >= exam.passThreshold ? 'border-success' : 'border-danger'}">
+        <div class="card-body text-center py-5">
+          <div th:if="${attempt.scorePercent >= exam.passThreshold}">
+            <i class="bi bi-trophy-fill fs-1 text-success"></i>
+            <h2 class="text-success mt-3">Félicitations !</h2>
+            <p class="text-muted">Vous avez réussi cet examen.</p>
+          </div>
+          <div th:unless="${attempt.scorePercent >= exam.passThreshold}">
+            <i class="bi bi-emoji-frown fs-1 text-danger"></i>
+            <h2 class="text-danger mt-3">Essayez encore</h2>
+            <p class="text-muted">Vous n'avez pas atteint le seuil de réussite.</p>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-md-4">
+              <div class="border rounded p-3">
+                <h3 th:text="${attempt.scorePercent + '%'}" 
+                    th:classappend="${attempt.scorePercent >= exam.passThreshold ? 'text-success' : 'text-danger'}">75%</h3>
+                <span class="text-muted">Score</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3">
+                <h3><span th:text="${attempt.correctCount}">8</span>/<span th:text="${attempt.totalCount}">10</span></h3>
+                <span class="text-muted">Correctes</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3">
+                <h3 th:text="${attempt.timeSpentSeconds != null ? (attempt.timeSpentSeconds / 60) + ' min' : '--'}">5 min</h3>
+                <span class="text-muted">Temps passé</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détail des réponses (si autorisé) -->
+      <div th:if="${allowReview}">
+        <h4 class="mb-3">
+          <i class="bi bi-list-check me-2"></i>Révision des réponses
+        </h4>
+
+        <div th:each="q, idx : ${questions}" class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center"
+               th:classappend="${answersMap[q.id] != null && answersMap[q.id].isCorrect ? 'bg-success-subtle' : 'bg-danger-subtle'}">
+            <span>Question <span th:text="${idx.count}">1</span></span>
+            <span th:if="${answersMap[q.id] != null && answersMap[q.id].isCorrect}" class="badge bg-success">
+              <i class="bi bi-check-lg"></i> Correct
+            </span>
+            <span th:unless="${answersMap[q.id] != null && answersMap[q.id].isCorrect}" class="badge bg-danger">
+              <i class="bi bi-x-lg"></i> Incorrect
+            </span>
+          </div>
+          <div class="card-body">
+            <p class="fw-bold" th:text="${q.questionText}">Question</p>
+
+            <!-- QCM -->
+            <div th:if="${q.questionType.name() == 'MCQ'}" class="list-group mb-3">
+              <div th:if="${q.aText != null and !q.aText.isEmpty()}" class="list-group-item" 
+                   th:classappend="${q.correctChoice == 'A' ? 'list-group-item-success' : (answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'A' && !answersMap[q.id].isCorrect ? 'list-group-item-danger' : '')}">
+                <strong>A)</strong> <span th:text="${q.aText}">Choix A</span>
+                <i th:if="${q.correctChoice == 'A'}" class="bi bi-check-circle-fill text-success ms-2"></i>
+                <i th:if="${answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'A' && !answersMap[q.id].isCorrect}" class="bi bi-x-circle-fill text-danger ms-2"></i>
+              </div>
+              <div th:if="${q.bText != null and !q.bText.isEmpty()}" class="list-group-item"
+                   th:classappend="${q.correctChoice == 'B' ? 'list-group-item-success' : (answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'B' && !answersMap[q.id].isCorrect ? 'list-group-item-danger' : '')}">
+                <strong>B)</strong> <span th:text="${q.bText}">Choix B</span>
+                <i th:if="${q.correctChoice == 'B'}" class="bi bi-check-circle-fill text-success ms-2"></i>
+                <i th:if="${answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'B' && !answersMap[q.id].isCorrect}" class="bi bi-x-circle-fill text-danger ms-2"></i>
+              </div>
+              <div th:if="${q.cText != null and !q.cText.isEmpty()}" class="list-group-item"
+                   th:classappend="${q.correctChoice == 'C' ? 'list-group-item-success' : (answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'C' && !answersMap[q.id].isCorrect ? 'list-group-item-danger' : '')}">
+                <strong>C)</strong> <span th:text="${q.cText}">Choix C</span>
+                <i th:if="${q.correctChoice == 'C'}" class="bi bi-check-circle-fill text-success ms-2"></i>
+                <i th:if="${answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'C' && !answersMap[q.id].isCorrect}" class="bi bi-x-circle-fill text-danger ms-2"></i>
+              </div>
+              <div th:if="${q.dText != null and !q.dText.isEmpty()}" class="list-group-item"
+                   th:classappend="${q.correctChoice == 'D' ? 'list-group-item-success' : (answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'D' && !answersMap[q.id].isCorrect ? 'list-group-item-danger' : '')}">
+                <strong>D)</strong> <span th:text="${q.dText}">Choix D</span>
+                <i th:if="${q.correctChoice == 'D'}" class="bi bi-check-circle-fill text-success ms-2"></i>
+                <i th:if="${answersMap[q.id] != null && answersMap[q.id].chosenChoice == 'D' && !answersMap[q.id].isCorrect}" class="bi bi-x-circle-fill text-danger ms-2"></i>
+              </div>
+            </div>
+
+            <!-- Question ouverte -->
+            <div th:if="${q.questionType.name() == 'OPEN_ENDED'}">
+              <div class="mb-3">
+                <strong>Votre réponse:</strong>
+                <div class="border rounded p-3 bg-light mt-2">
+                  <p class="mb-0" th:text="${answersMap[q.id] != null ? answersMap[q.id].textAnswer : 'Aucune réponse'}">Réponse de l'étudiant</p>
+                </div>
+              </div>
+
+              <div th:if="${answersMap[q.id] != null && answersMap[q.id].aiScore != null}" class="alert alert-info">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <strong><i class="bi bi-robot me-2"></i>Évaluation IA</strong>
+                  <span class="badge" 
+                        th:classappend="${answersMap[q.id].aiScore >= 70 ? 'bg-success' : (answersMap[q.id].aiScore >= 50 ? 'bg-warning' : 'bg-danger')}"
+                        th:text="${answersMap[q.id].aiScore + '/100'}">85/100</span>
+                </div>
+                <p class="mb-0 small" th:text="${answersMap[q.id].aiFeedback}">Feedback de l'IA</p>
+              </div>
+
+              <div th:if="${q.expectedAnswer}" class="alert alert-secondary small">
+                <strong><i class="bi bi-lightbulb me-2"></i>Éléments attendus:</strong>
+                <p class="mb-0" th:text="${q.expectedAnswer}">Réponse attendue</p>
+              </div>
+            </div>
+
+            <div th:if="${q.explanation}" class="alert alert-info small mb-0">
+              <strong><i class="bi bi-lightbulb me-2"></i>Explication:</strong>
+              <span th:text="${q.explanation}">Explication</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a th:href="@{/student/exam/{id}(id=${exam.id})}" class="btn btn-outline-primary me-2">
+          <i class="bi bi-arrow-left me-2"></i>Retour à l'examen
+        </a>
+        <a th:href="@{/student/dashboard}" class="btn btn-primary">
+          <i class="bi bi-house me-2"></i>Tableau de bord
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

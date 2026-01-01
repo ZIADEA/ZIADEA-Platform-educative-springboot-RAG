@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Institution — Profil</h2>
+    <div class="btn-group">
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/institution/approvals}">Approbations</a>
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/institution/structure}">Structure</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form th:action="@{/institution/profile}" th:object="${form}" method="post" class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Nom</label>
+          <input class="form-control" th:field="*{name}">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Type</label>
+          <select class="form-select" th:field="*{type}">
+            <option value="UNIVERSITE">Université</option>
+            <option value="ECOLE">École</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Pays</label>
+          <input class="form-control" th:field="*{country}">
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Ville</label>
+          <input class="form-control" th:field="*{city}">
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Adresse</label>
+          <input class="form-control" th:field="*{address}">
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</html>

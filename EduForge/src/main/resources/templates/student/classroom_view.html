@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <!-- En-tête de la classe -->
+  <div class="classroom-header mb-4">
+    <div class="card bg-primary text-white shadow">
+      <div class="card-body py-4">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h2 class="h3 mb-2" th:text="${classroom.title}">Nom de la classe</h2>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <span class="badge bg-light text-dark fs-6">
+                <i class="bi bi-key me-1"></i> Code: <strong th:text="${classroom.code}">ABCD1234</strong>
+              </span>
+              <span class="small opacity-75">
+                <i class="bi bi-people me-1"></i> <span th:text="${studentCount}">0</span> étudiants
+              </span>
+              <span class="small opacity-75">
+                <i class="bi bi-book me-1"></i> <span th:text="${courseCount}">0</span> cours
+              </span>
+              <span class="small opacity-75" th:if="${owner != null}">
+                <i class="bi bi-person-badge me-1"></i> Prof: <span th:text="${owner.fullName}">Nom</span>
+              </span>
+            </div>
+          </div>
+          <a th:href="@{/student/classes}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left"></i> Retour
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets de navigation -->
+  <ul class="nav nav-tabs mb-4" id="classroomTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="stream-tab" data-bs-toggle="tab" data-bs-target="#stream" type="button" role="tab" aria-controls="stream" aria-selected="true">
+        <i class="bi bi-chat-square-text me-1"></i> Flux
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="courses-tab-btn" data-bs-toggle="tab" data-bs-target="#courses-tab" type="button" role="tab" aria-controls="courses-tab" aria-selected="false">
+        <i class="bi bi-book me-1"></i> Cours
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="exams-tab-btn" data-bs-toggle="tab" data-bs-target="#exams-tab" type="button" role="tab" aria-controls="exams-tab" aria-selected="false">
+        <i class="bi bi-file-earmark-text me-1"></i> Examens
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="classroomTabsContent">
+    <!-- Onglet Flux (publications du prof) -->
+    <div class="tab-pane fade show active" id="stream" role="tabpanel" aria-labelledby="stream-tab">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Liste des publications -->
+          <div th:if="${#lists.isEmpty(posts)}" class="text-center py-5 text-muted">
+            <i class="bi bi-chat-square-dots fs-1 d-block mb-3"></i>
+            <p>Aucune publication pour le moment.</p>
+          </div>
+
+          <div th:each="post : ${posts}" class="card shadow-sm mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle bg-primary text-white me-2">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  <div>
+                    <strong>Professeur</strong>
+                    <div class="text-muted small" th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy à HH:mm')}"></div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span th:if="${post.type == 'ANNOUNCEMENT'}" class="badge bg-info">
+                    <i class="bi bi-megaphone"></i> Annonce
+                  </span>
+                  <span th:if="${post.type == 'RESOURCE'}" class="badge bg-success">
+                    <i class="bi bi-file-earmark"></i> Ressource
+                  </span>
+                </div>
+              </div>
+              <p class="mb-0 post-content" th:text="${post.content}"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <!-- Infos classe -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+              <i class="bi bi-info-circle me-1"></i> À propos
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                <li class="mb-2" th:if="${owner != null}">
+                  <strong>Professeur:</strong>
+                  <span th:text="${owner.fullName}">Nom</span>
+                </li>
+                <li class="mb-2">
+                  <strong>Étudiants:</strong>
+                  <span th:text="${studentCount}">0</span>
+                </li>
+                <li>
+                  <strong>Cours disponibles:</strong>
+                  <span th:text="${courseCount}">0</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Accès rapide aux cours -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-book me-1"></i> Cours</span>
+              <span class="badge bg-primary" th:text="${courseCount}">0</span>
+            </div>
+            <div class="card-body p-0">
+              <div th:if="${#lists.isEmpty(courses)}" class="p-3 text-muted text-center small">
+                Aucun cours disponible
+              </div>
+              <ul class="list-group list-group-flush">
+                <li th:each="course : ${courses}" class="list-group-item">
+                  <a th:href="@{/student/courses/{id}(id=${course.id})}" class="text-decoration-none">
+                    <i class="bi bi-journal-text me-1 text-primary"></i>
+                    <span th:text="${course.title}">Cours</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Cours -->
+    <div class="tab-pane fade" id="courses-tab" role="tabpanel" aria-labelledby="courses-tab-btn">
+      <div th:if="${#lists.isEmpty(courses)}" class="text-center py-5 text-muted">
+        <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+        <p>Aucun cours disponible dans cette classe pour le moment.</p>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${#lists.isEmpty(courses)}">
+        <div class="col" th:each="course : ${courses}">
+          <div class="card h-100 shadow-sm course-card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="bi bi-journal-text me-2 text-primary"></i>
+                <span th:text="${course.title}">Titre du cours</span>
+              </h5>
+              <p class="card-text text-muted small" th:if="${course.description}"
+                 th:text="${#strings.abbreviate(course.description, 100)}">Description</p>
+              <div class="mb-3">
+                <span th:if="${course.status.name() == 'PUBLISHED'}" class="badge bg-success">
+                  <i class="bi bi-check-circle me-1"></i> Publié
+                </span>
+                <span th:if="${course.status.name() == 'PUBLIC'}" class="badge bg-info">
+                  <i class="bi bi-globe me-1"></i> Public
+                </span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent">
+              <div class="d-flex gap-2">
+                <a th:href="@{/course/{id}(id=${course.id})}" class="btn btn-primary btn-sm flex-grow-1">
+                  <i class="bi bi-eye me-1"></i> Consulter
+                </a>
+                <a th:href="@{/student/quiz/start/{id}(id=${course.id})}" class="btn btn-outline-success btn-sm">
+                  <i class="bi bi-lightning me-1"></i> Quiz
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Examens -->
+    <div class="tab-pane fade" id="exams-tab" role="tabpanel" aria-labelledby="exams-tab-btn">
+      <div th:if="${#lists.isEmpty(exams)}" class="text-center py-5 text-muted">
+        <i class="bi bi-file-earmark-x fs-1 d-block mb-3"></i>
+        <p>Aucun examen disponible pour le moment.</p>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${#lists.isEmpty(exams)}">
+        <div class="col" th:each="exam : ${exams}">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span th:switch="${exam.examType.name()}">
+                <span th:case="'QUIZ'" class="badge bg-info">Quiz</span>
+                <span th:case="'MIDTERM'" class="badge bg-warning text-dark">Partiel</span>
+                <span th:case="'FINAL'" class="badge bg-danger">Final</span>
+                <span th:case="'PRACTICE'" class="badge bg-secondary">Pratique</span>
+              </span>
+              <span th:if="${exam.status.name() == 'PUBLISHED'}" class="badge bg-success">
+                <i class="bi bi-play-circle me-1"></i>Disponible
+              </span>
+              <span th:if="${exam.status.name() == 'SCHEDULED'}" class="badge bg-warning text-dark">
+                <i class="bi bi-clock me-1"></i>Programmé
+              </span>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title" th:text="${exam.title}">Titre de l'examen</h5>
+              <ul class="list-unstyled small text-muted mb-0">
+                <li th:if="${exam.scheduledStart != null}">
+                  <i class="bi bi-calendar-event me-1"></i>
+                  Début: <span th:text="${#temporals.format(exam.scheduledStart, 'dd/MM/yyyy HH:mm')}"></span>
+                </li>
+                <li th:if="${exam.scheduledEnd != null}">
+                  <i class="bi bi-calendar-check me-1"></i>
+                  Fin: <span th:text="${#temporals.format(exam.scheduledEnd, 'dd/MM/yyyy HH:mm')}"></span>
+                </li>
+                <li th:if="${exam.durationMinutes != null}">
+                  <i class="bi bi-hourglass me-1"></i>
+                  Durée: <span th:text="${exam.durationMinutes}">60</span> min
+                </li>
+              </ul>
+            </div>
+            <div class="card-footer bg-transparent">
+              <a th:href="@{/student/exam/{id}/start(id=${exam.id})}" 
+                 class="btn btn-primary w-100"
+                 th:if="${exam.status.name() == 'PUBLISHED' || exam.status.name() == 'SCHEDULED'}">
+                <i class="bi bi-play-fill me-1"></i>Commencer l'examen
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .post-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .classroom-header .card {
+      background: linear-gradient(135deg, var(--bs-primary) 0%, #4f46e5 100%) !important;
+    }
+    .course-card {
+      transition: transform 0.2s;
+    }
+    .course-card:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+
+</div>
+</html>

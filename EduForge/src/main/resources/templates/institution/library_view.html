@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a th:href="@{/institution/library}">Bibliothèque</a></li>
+          <li class="breadcrumb-item active" th:text="${resource.title}">Ressource</li>
+        </ol>
+      </nav>
+
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div th:if="${resource.fileType == 'PDF'}" class="bg-danger bg-opacity-10 rounded-3 p-2 me-3">
+              <i class="bi bi-file-pdf text-danger fs-4"></i>
+            </div>
+            <div th:if="${resource.fileType == 'TXT'}" class="bg-info bg-opacity-10 rounded-3 p-2 me-3">
+              <i class="bi bi-file-text text-info fs-4"></i>
+            </div>
+            <h4 class="mb-0" th:text="${resource.title}">Titre</h4>
+          </div>
+          <span th:if="${resource.category}" class="badge bg-secondary" th:text="${resource.category}">Catégorie</span>
+        </div>
+        
+        <div class="card-body">
+          <!-- Métadonnées -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Fichier:</strong> <span th:text="${resource.originalName}">fichier.pdf</span></p>
+              <p class="mb-1"><strong>Type:</strong> <span th:text="${resource.fileType}">PDF</span></p>
+              <p class="mb-1" th:if="${resource.fileSize}">
+                <strong>Taille:</strong> 
+                <span th:text="${#numbers.formatDecimal(resource.fileSize / 1024.0 / 1024.0, 1, 2)} + ' MB'">0 MB</span>
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1" th:if="${resource.author}"><strong>Auteur:</strong> <span th:text="${resource.author}">Auteur</span></p>
+              <p class="mb-1" th:if="${resource.isbn}"><strong>ISBN:</strong> <span th:text="${resource.isbn}">ISBN</span></p>
+              <p class="mb-1" th:if="${resource.publishedYear}"><strong>Année:</strong> <span th:text="${resource.publishedYear}">2024</span></p>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div th:if="${resource.description}" class="mb-4">
+            <h6>Description</h6>
+            <p class="text-muted" th:text="${resource.description}">Description</p>
+          </div>
+
+          <!-- Statistiques -->
+          <div class="d-flex gap-4 text-muted small mb-4">
+            <span><i class="bi bi-download me-1"></i> <span th:text="${resource.downloadCount}">0</span> téléchargements</span>
+            <span><i class="bi bi-calendar me-1"></i> Ajouté le <span th:text="${#temporals.format(resource.createdAt, 'dd/MM/yyyy')}">Date</span></span>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex gap-2">
+            <a th:href="@{/institution/library/{id}/download(id=${resource.id})}" class="btn btn-primary">
+              <i class="bi bi-download me-1"></i> Télécharger
+            </a>
+            <form th:action="@{/institution/library/{id}/delete(id=${resource.id})}" method="post" class="d-inline"
+                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ressource ?');">
+              <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Supprimer
+              </button>
+            </form>
+            <a th:href="@{/institution/library}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Retour
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

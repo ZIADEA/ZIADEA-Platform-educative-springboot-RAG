@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0" th:text="${course.title}"></h2>
+    <div class="d-flex gap-2">
+      <!-- Bouton Quiz pour les étudiants -->
+      <a sec:authorize="hasRole('ETUDIANT')" 
+         th:href="@{/student/quiz/start/{id}(id=${course.id})}" 
+         class="btn btn-success btn-sm">
+        <i class="bi bi-question-circle me-1"></i>Passer un quiz
+      </a>
+      <a class="btn btn-outline-secondary btn-sm" th:href="${backUrl != null ? backUrl : '/dashboard'}">Retour</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <div class="text-muted" th:if="${course.description != null}" th:text="${course.description}"></div>
+      <div class="small text-muted mt-2">
+        Statut : <span class="badge" th:classappend="${course.status.name() == 'PUBLISHED'} ? 'bg-success' : 'bg-secondary'" th:text="${course.status}"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h3 class="h6">Contenu</h3>
+      <pre class="small" style="white-space: pre-wrap;" th:text="${fullText}"></pre>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h3 class="h6">Fichiers</h3>
+      <div th:if="${#lists.isEmpty(materials)}" class="text-muted">Aucun fichier.</div>
+      <ul class="list-group" th:if="${!#lists.isEmpty(materials)}">
+        <li class="list-group-item d-flex justify-content-between align-items-center" th:each="m : ${materials}">
+          <div>
+            <span class="badge me-2" 
+                  th:classappend="${m.type == 'PDF'} ? 'bg-danger' : (${m.type == 'TEXT'} ? 'bg-info' : 'bg-warning')"
+                  th:text="${m.type}"></span>
+            <span th:text="${m.originalName}"></span>
+          </div>
+          <a th:href="@{/course/{courseId}/material/{materialId}/download(courseId=${course.id}, materialId=${m.id})}" 
+             class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-download me-1"></i>Télécharger
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</html>

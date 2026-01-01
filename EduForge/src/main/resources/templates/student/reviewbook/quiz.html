@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a th:href="@{/student/reviewbook}">Mes documents</a></li>
+      <li class="breadcrumb-item"><a th:href="@{/student/reviewbook/{id}(id=${book.id})}" th:text="${book.title}">Document</a></li>
+      <li class="breadcrumb-item active">Quiz</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-lightning me-2"></i>Quiz: <span th:text="${book.title}">Titre</span>
+      </h5>
+    </div>
+  </div>
+
+  <form id="quizForm">
+    <div th:each="q, idx : ${questions}" class="card shadow-sm mb-4">
+      <div class="card-header">
+        <strong>Question <span th:text="${idx.count}">1</span></strong> / <span th:text="${#lists.size(questions)}">10</span>
+      </div>
+      <div class="card-body">
+        <p class="lead mb-4" th:text="${q.question()}">Question ?</p>
+        
+        <div class="choices">
+          <div class="form-check mb-3" th:each="choice : ${q.choices().entrySet()}">
+            <input class="form-check-input choice-input" type="radio" 
+                   th:name="'q_' + ${idx.index}" 
+                   th:id="'q' + ${idx.index} + '_' + ${choice.key}"
+                   th:value="${choice.key}"
+                   th:data-correct="${choice.key == q.correct() ? 'true' : 'false'}"
+                   th:data-explanation="${q.explanation()}">
+            <label class="form-check-label" 
+                   th:for="'q' + ${idx.index} + '_' + ${choice.key}"
+                   th:id="'label_q' + ${idx.index} + '_' + ${choice.key}">
+              <strong th:text="${choice.key}">A</strong>. <span th:text="${choice.value}">Réponse</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Zone pour feedback après réponse -->
+        <div th:id="'feedback_' + ${idx.index}" class="alert d-none mt-3" role="alert"></div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <a th:href="@{/student/reviewbook/{id}(id=${book.id})}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      </a>
+      <button type="button" id="submitQuiz" class="btn btn-primary btn-lg">
+        <i class="bi bi-check-circle me-2"></i>Valider mes réponses
+      </button>
+    </div>
+  </form>
+
+  <!-- Résultats -->
+  <div id="resultsCard" class="card shadow-sm mt-4 d-none">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Résultats</h5>
+    </div>
+    <div class="card-body text-center">
+      <div class="display-4 mb-3" id="scoreDisplay">0%</div>
+      <p class="lead" id="scoreMessage">Message</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a th:href="@{/student/reviewbook/{id}/quiz(id=${book.id})}" class="btn btn-success">
+          <i class="bi bi-arrow-clockwise me-2"></i>Nouveau quiz
+        </a>
+        <a th:href="@{/student/reviewbook/{id}(id=${book.id})}" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left me-2"></i>Retour au document
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    document.getElementById('submitQuiz').addEventListener('click', function() {
+      const totalQuestions = /*[[${#lists.size(questions)}]]*/ 0;
+      let correct = 0;
+      let answered = 0;
+
+      for (let i = 0; i < totalQuestions; i++) {
+        const selected = document.querySelector(`input[name="q_${i}"]:checked`);
+        const feedbackDiv = document.getElementById(`feedback_${i}`);
+        
+        if (selected) {
+          answered++;
+          const isCorrect = selected.dataset.correct === 'true';
+          const explanation = selected.dataset.explanation;
+          
+          feedbackDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
+          
+          if (isCorrect) {
+            correct++;
+            feedbackDiv.classList.add('alert-success');
+            feedbackDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i><strong>Correct !</strong> ' + explanation;
+          } else {
+            feedbackDiv.classList.add('alert-danger');
+            feedbackDiv.innerHTML = '<i class="bi bi-x-circle me-2"></i><strong>Incorrect.</strong> ' + explanation;
+          }
+          
+          // Désactiver les inputs
+          document.querySelectorAll(`input[name="q_${i}"]`).forEach(inp => inp.disabled = true);
+          
+          // Colorer les labels
+          document.querySelectorAll(`input[name="q_${i}"]`).forEach(inp => {
+            const label = document.getElementById(`label_${inp.id}`);
+            if (inp.dataset.correct === 'true') {
+              label.classList.add('text-success', 'fw-bold');
+            } else if (inp.checked && inp.dataset.correct !== 'true') {
+              label.classList.add('text-danger');
+            }
+          });
+        } else {
+          feedbackDiv.classList.remove('d-none');
+          feedbackDiv.classList.add('alert-warning');
+          feedbackDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Question non répondue.';
+        }
+      }
+
+      // Afficher les résultats
+      const percentage = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
+      document.getElementById('scoreDisplay').textContent = percentage + '%';
+      
+      let message;
+      if (percentage >= 80) {
+        message = '🎉 Excellent ! Tu maîtrises bien ce sujet.';
+      } else if (percentage >= 60) {
+        message = '👍 Bien joué ! Quelques points à revoir.';
+      } else if (percentage >= 40) {
+        message = '📚 Tu peux mieux faire. Continue à réviser !';
+      } else {
+        message = '💪 Ne te décourage pas ! Reprends le document et réessaie.';
+      }
+      document.getElementById('scoreMessage').textContent = message + ` (${correct}/${totalQuestions} bonnes réponses)`;
+      
+      document.getElementById('resultsCard').classList.remove('d-none');
+      document.getElementById('submitQuiz').disabled = true;
+      document.getElementById('submitQuiz').classList.add('d-none');
+      
+      // Scroll vers les résultats
+      document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</div>
+</html>

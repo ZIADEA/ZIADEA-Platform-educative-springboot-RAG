@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a th:href="@{/student/dashboard}">Tableau de bord</a></li>
+      <li class="breadcrumb-item active" th:text="${exam.title}">Examen</li>
+    </ol>
+  </nav>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0" th:text="${exam.title}">Titre de l'examen</h4>
+        </div>
+        <div class="card-body">
+          <p th:if="${exam.description}" th:text="${exam.description}" class="text-muted">Description</p>
+
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <i class="bi bi-question-circle fs-3 text-primary"></i>
+                <div class="mt-2">
+                  <strong th:text="${exam.questionCount}">10</strong>
+                  <span class="text-muted d-block small">Questions</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <i class="bi bi-clock fs-3 text-warning"></i>
+                <div class="mt-2">
+                  <strong th:text="${exam.durationMinutes}">60</strong>
+                  <span class="text-muted d-block small">Minutes</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <i class="bi bi-trophy fs-3 text-success"></i>
+                <div class="mt-2">
+                  <strong th:text="${exam.passThreshold + '%'}">50%</strong>
+                  <span class="text-muted d-block small">Seuil de réussite</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info" th:if="${exam.isScheduled}">
+            <i class="bi bi-calendar me-2"></i>
+            <strong>Examen programmé:</strong> 
+            <span th:text="${#temporals.format(exam.scheduledStart, 'dd/MM/yyyy HH:mm')}">Début</span>
+            - <span th:text="${#temporals.format(exam.scheduledEnd, 'dd/MM/yyyy HH:mm')}">Fin</span>
+          </div>
+
+          <div th:if="${canAttempt}">
+            <a th:href="@{/student/exam/{id}/start(id=${exam.id})}" class="btn btn-lg btn-primary">
+              <i class="bi bi-play-fill me-2"></i>Commencer l'examen
+            </a>
+          </div>
+          <div th:unless="${canAttempt}">
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Vous avez atteint le nombre maximum de tentatives pour cet examen.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <i class="bi bi-clock-history me-2"></i>Mes tentatives
+        </div>
+        <ul class="list-group list-group-flush">
+          <li th:if="${#lists.isEmpty(attempts)}" class="list-group-item text-muted">
+            Aucune tentative pour le moment.
+          </li>
+          <li th:each="a : ${attempts}" class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Tentative #<span th:text="${a.attemptNumber}">1</span></strong>
+                <span th:classappend="${a.scorePercent >= exam.passThreshold ? 'badge bg-success' : 'badge bg-danger'}"
+                      th:text="${a.scorePercent + '%'}">75%</span>
+              </div>
+              <small class="text-muted" th:text="${#temporals.format(a.startedAt, 'dd/MM HH:mm')}">Date</small>
+            </div>
+            <div class="small mt-1">
+              <span class="text-muted">
+                <span th:text="${a.correctCount}">8</span>/<span th:text="${a.totalCount}">10</span> correctes
+              </span>
+              <a th:if="${exam.allowReview}" 
+                 th:href="@{/student/exam/{id}/result/{aId}(id=${exam.id}, aId=${a.id})}"
+                 class="ms-2">Voir détails</a>
+            </div>
+          </li>
+        </ul>
+        <div class="card-footer small text-muted">
+          Tentatives: <span th:text="${#lists.size(attempts)}">0</span> / <span th:text="${exam.maxAttempts}">1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+      <i class="bi bi-mortarboard me-2"></i>Mes examens
+    </h1>
+    <a th:href="@{/prof/exam/create}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Nouvel examen
+    </a>
+  </div>
+
+  <div th:if="${#lists.isEmpty(exams)}" class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    Aucun examen créé. <a th:href="@{/prof/exam/create}">Créer votre premier examen</a>.
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${#lists.isEmpty(exams)}">
+    <div class="col" th:each="e : ${exams}">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span th:switch="${e.status.name()}">
+            <span th:case="'DRAFT'" class="badge bg-secondary">Brouillon</span>
+            <span th:case="'PUBLISHED'" class="badge bg-success">Publié</span>
+            <span th:case="'CLOSED'" class="badge bg-danger">Fermé</span>
+          </span>
+          <span th:switch="${e.examType.name()}">
+            <span th:case="'QUIZ'" class="badge bg-info">Quiz</span>
+            <span th:case="'MIDTERM'" class="badge bg-warning">Partiel</span>
+            <span th:case="'FINAL'" class="badge bg-primary">Final</span>
+            <span th:case="'PRACTICE'" class="badge bg-light text-dark">Pratique</span>
+          </span>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title" th:text="${e.title}">Titre</h5>
+          <p class="card-text text-muted small" th:if="${e.description}" 
+             th:text="${#strings.abbreviate(e.description, 80)}">Description</p>
+          
+          <ul class="list-unstyled small mb-0">
+            <li><i class="bi bi-question-circle me-2"></i><span th:text="${e.questionCount}">10</span> questions</li>
+            <li><i class="bi bi-clock me-2"></i><span th:text="${e.durationMinutes}">60</span> minutes</li>
+            <li th:if="${e.isScheduled}">
+              <i class="bi bi-calendar me-2"></i>
+              <span th:text="${#temporals.format(e.scheduledStart, 'dd/MM HH:mm')}">Date</span>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent">
+          <div class="d-flex gap-2">
+            <a th:href="@{/prof/exam/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-eye me-1"></i>Voir
+            </a>
+            <a th:href="@{/prof/exam/{id}/edit(id=${e.id})}" class="btn btn-sm btn-outline-secondary"
+               th:if="${e.status.name() == 'DRAFT'}">
+              <i class="bi bi-pencil me-1"></i>Modifier
+            </a>
+            <a th:href="@{/prof/exam/{id}/results(id=${e.id})}" class="btn btn-sm btn-outline-info"
+               th:unless="${e.status.name() == 'DRAFT'}">
+              <i class="bi bi-graph-up me-1"></i>Résultats
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

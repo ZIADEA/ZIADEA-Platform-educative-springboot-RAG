@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+
+<div th:fragment="content">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h4 mb-0">Éditer le cours</h1>
+      <div class="text-muted small">
+        Statut : 
+        <span class="badge"
+              th:classappend="${course.status.name() == 'PUBLIC'} ? 'bg-success' : (${course.status.name() == 'CLASSE'} ? 'bg-info' : 'bg-secondary')">
+          <span th:if="${course.status.name() == 'DRAFT'}">Brouillon</span>
+          <span th:if="${course.status.name() == 'PUBLIC'}">Public</span>
+          <span th:if="${course.status.name() == 'CLASSE'}">Classe</span>
+          <span th:if="${course.status.name() == 'PUBLISHED'}">Publié</span>
+        </span>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/prof/courses}">Retour</a>
+      <a class="btn btn-outline-primary btn-sm" th:href="@{|/course/${course.id}|}">Aperçu</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-8">
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Informations & contenu</h2>
+
+          <form th:action="@{|/prof/courses/${course.id}/update|}" th:object="${form}" method="post" class="row g-2">
+            <div class="col-12">
+              <label class="form-label">Titre</label>
+              <input class="form-control" th:field="*{title}" placeholder="Titre du cours">
+              <div class="text-danger small" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <input class="form-control" th:field="*{description}" placeholder="Courte description (optionnel)">
+              <div class="text-danger small" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Texte (optionnel)</label>
+              <textarea class="form-control" rows="10" th:field="*{textContent}" placeholder="Tu peux coller du texte ici…"></textarea>
+              <div class="text-danger small" th:if="${#fields.hasErrors('textContent')}" th:errors="*{textContent}"></div>
+            </div>
+
+            <div class="col-12 d-flex flex-wrap gap-2 mt-2">
+              <button class="btn btn-primary" type="submit">Enregistrer</button>
+              <span class="small text-muted align-self-center">
+                <i class="bi bi-check-circle me-1"></i>Auto-indexation RAG activée - Contenu indexé automatiquement après sauvegarde.
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Fichiers (PDF / PPTX / TXT)</h2>
+
+          <form th:action="@{|/prof/courses/${course.id}/upload|}" method="post" enctype="multipart/form-data" class="d-flex gap-2 flex-wrap">
+            <input class="form-control" type="file" name="file" required>
+            <button class="btn btn-outline-primary" type="submit">Uploader</button>
+          </form>
+
+          <div class="small text-muted mt-2">
+            <i class="bi bi-info-circle me-1"></i>Après upload : extraction du texte + auto-indexation RAG automatique.
+          </div>
+
+          <div class="mt-3">
+            <div th:if="${#lists.isEmpty(materials)}" class="text-muted">Aucun fichier uploadé.</div>
+            <ul class="list-group" th:if="${!#lists.isEmpty(materials)}">
+              <li class="list-group-item d-flex justify-content-between align-items-center" th:each="m : ${materials}">
+                <div>
+                  <span class="badge text-bg-secondary" th:text="${m.type}"></span>
+                  <span class="ms-2" th:text="${m.originalName}"></span>
+                </div>
+                <span class="text-muted small" th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-12 col-lg-4">
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-3"><i class="bi bi-globe me-2"></i>Publication</h2>
+
+          <!-- Si déjà publié, option pour dépublier -->
+          <div th:if="${course.status.name() != 'DRAFT'}" class="mb-3">
+            <div class="alert alert-info small py-2 mb-2">
+              <i class="bi bi-info-circle me-1"></i>
+              Ce cours est actuellement 
+              <strong th:if="${course.status.name() == 'PUBLIC'}">publié publiquement</strong>
+              <strong th:if="${course.status.name() == 'CLASSE'}">publié pour une classe</strong>
+              <strong th:if="${course.status.name() == 'PUBLISHED'}">publié</strong>.
+            </div>
+            <form th:action="@{|/prof/courses/${course.id}/unpublish|}" method="post">
+              <button class="btn btn-outline-warning w-100" type="submit">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Repasser en brouillon
+              </button>
+            </form>
+          </div>
+
+          <!-- Options de publication si brouillon -->
+          <div th:if="${course.status.name() == 'DRAFT'}">
+            <p class="small text-muted mb-3">Choisissez comment publier ce cours :</p>
+
+            <!-- Option 1 : PUBLIC -->
+            <form th:action="@{|/prof/courses/${course.id}/publish|}" method="post" class="mb-3">
+              <input type="hidden" name="publishType" value="PUBLIC">
+              <div class="card border-success mb-2">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <i class="bi bi-globe text-success me-2"></i>
+                      <strong>PUBLIC</strong>
+                      <p class="small text-muted mb-0">Visible par tous dans le catalogue</p>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-sm">Publier</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- Option 2 : CLASSE -->
+            <form th:action="@{|/prof/courses/${course.id}/publish|}" method="post">
+              <input type="hidden" name="publishType" value="CLASSE">
+              <div class="card border-info">
+                <div class="card-body py-2">
+                  <div class="mb-2">
+                    <i class="bi bi-people text-info me-2"></i>
+                    <strong>CLASSE</strong>
+                    <p class="small text-muted mb-0">Visible uniquement par les étudiants de la classe</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" name="targetClassroomId" required>
+                      <option value="">Sélectionner une classe...</option>
+                      <option th:each="cl : ${classrooms}" th:value="${cl.id}" th:text="${cl.title}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-info btn-sm text-white">Publier</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Lier à une classe</h2>
+
+          <form th:action="@{|/prof/courses/${course.id}/attach|}" method="post" class="d-flex gap-2">
+            <select class="form-select" name="classroomId" required>
+              <option value="" disabled selected>Choisir une classe…</option>
+              <option th:each="cl : ${classrooms}" th:value="${cl.id}" th:text="${cl.title}"></option>
+            </select>
+            <button class="btn btn-outline-primary" type="submit">Lier</button>
+          </form>
+
+          <div class="small text-muted mt-2">
+            Les étudiants inscrits à la classe auront accès au cours.
+            <br><br>
+            <i class="bi bi-info-circle me-1"></i><strong>Auto-indexation RAG :</strong> Le contenu du cours est automatiquement indexé après chaque modification ou ajout de fichier pour activer la recherche IA.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</html>

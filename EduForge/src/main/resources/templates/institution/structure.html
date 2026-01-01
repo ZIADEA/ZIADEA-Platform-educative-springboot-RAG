@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Institution — Structure pédagogique</h2>
+    <div class="btn-group">
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/institution/profile}">Profil</a>
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/institution/approvals}">Approbations</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="h6">Formations / Filières</h3>
+
+          <form th:action="@{/institution/structure/program}" th:object="${programForm}" method="post" class="d-flex gap-2 mb-3">
+            <input class="form-control form-control-sm" th:field="*{name}" placeholder="Ex: Génie Industriel">
+            <button class="btn btn-sm btn-primary">Ajouter</button>
+          </form>
+
+          <div class="list-group">
+            <a class="list-group-item list-group-item-action"
+               th:each="p : ${programs}"
+               th:href="@{|/institution/structure?programId=${p.id}|}">
+              <span th:text="${p.name}"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="h6">Niveaux / Années</h3>
+
+          <div th:if="${selectedProgramId == null}" class="text-muted small">
+            Sélectionne une formation.
+          </div>
+
+          <div th:if="${selectedProgramId != null}">
+            <form th:action="@{/institution/structure/level(programId=${selectedProgramId})}"
+                  th:object="${levelForm}" method="post" class="d-flex gap-2 mb-3">
+              <input class="form-control form-control-sm" th:field="*{label}" placeholder="Ex: 1ère année / L1">
+              <button class="btn btn-sm btn-primary">Ajouter</button>
+            </form>
+
+            <div class="list-group">
+              <a class="list-group-item list-group-item-action"
+                 th:each="l : ${levels}"
+                 th:href="@{|/institution/structure?programId=${selectedProgramId}&levelId=${l.id}|}">
+                <span th:text="${l.label}"></span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="h6">Matières</h3>
+
+          <div th:if="${selectedLevelId == null}" class="text-muted small">
+            Sélectionne un niveau.
+          </div>
+
+          <div th:if="${selectedLevelId != null}">
+            <form th:action="@{/institution/structure/subject(programId=${selectedProgramId}, levelId=${selectedLevelId})}"
+                  th:object="${subjectForm}" method="post" class="d-flex gap-2 mb-3">
+              <input class="form-control form-control-sm" th:field="*{name}" placeholder="Ex: Machine Learning">
+              <button class="btn btn-sm btn-primary">Ajouter</button>
+            </form>
+
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center" th:each="s : ${subjects}">
+                <div>
+                  <i class="bi bi-book me-2 text-primary"></i>
+                  <span th:text="${s.name}">Matière</span>
+                </div>
+                <a th:href="@{/institution/classrooms(subjectId=${s.id})}" 
+                   class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-people me-1"></i>Classes
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</html>

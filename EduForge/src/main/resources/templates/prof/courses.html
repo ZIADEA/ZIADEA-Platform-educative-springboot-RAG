@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Professeur — Cours</h2>
+    <a class="btn btn-outline-secondary btn-sm" th:href="@{/prof/classrooms}">Mes classes</a>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form th:action="@{/prof/courses}" th:object="${form}" method="post" class="row g-2 align-items-end">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Titre</label>
+          <input class="form-control" th:field="*{title}" placeholder="Ex: Architecture Distribuée — Chapitre 1">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Description</label>
+          <input class="form-control" th:field="*{description}" placeholder="Courte description (optionnel)">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Contenu texte (optionnel)</label>
+          <textarea class="form-control" th:field="*{textContent}" rows="4"
+                    placeholder="Tu peux coller directement ton contenu ici (en plus ou à la place des fichiers)."></textarea>
+        </div>
+        <div class="col-12 col-md-3">
+          <button class="btn btn-primary w-100">Créer le cours</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(courses)}" class="text-muted">Aucun cours pour le moment.</div>
+
+      <div th:if="${!#lists.isEmpty(courses)}" class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Statut</th>
+            <th>Créé</th>
+            <th class="text-end">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="c : ${courses}">
+            <td th:text="${c.title}"></td>
+            <td>
+              <span class="badge" th:classappend="${c.status.name() == 'PUBLISHED' ? 'text-bg-success' : 'text-bg-secondary'}"
+                    th:text="${c.status}"></span>
+            </td>
+            <td class="text-muted" th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-primary" th:href="@{|/prof/courses/${c.id}|}">Ouvrir</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

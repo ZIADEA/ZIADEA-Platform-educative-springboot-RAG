@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0"><i class="bi bi-person-check me-2"></i>Approbations</h2>
+    <div class="btn-group">
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/institution/profile}">Profil</a>
+      <a class="btn btn-outline-secondary btn-sm" th:href="@{/institution/structure}">Structure</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Demandes d'affiliation en attente</h5>
+      <span class="badge bg-warning text-dark" th:text="${#lists.size(pending)} + ' en attente'"></span>
+    </div>
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(pending)}" class="text-center py-4">
+        <i class="bi bi-inbox fs-1 text-muted"></i>
+        <p class="text-muted mt-2">Aucune demande d'affiliation en attente.</p>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(pending)}" class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+          <tr>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Date de demande</th>
+            <th class="text-end">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="m : ${pending}">
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle bg-primary text-white me-2" 
+                     th:text="${#strings.substring(m.userFullName, 0, 1)}">
+                </div>
+                <span th:text="${m.userFullName}">Nom</span>
+              </div>
+            </td>
+            <td class="text-muted" th:text="${m.userEmail}">email@example.com</td>
+            <td>
+              <span class="badge" 
+                    th:classappend="${m.userRole == 'PROF'} ? 'bg-info' : (${m.userRole == 'ETUDIANT'} ? 'bg-success' : 'bg-secondary')"
+                    th:text="${m.userRole}">ROLE</span>
+            </td>
+            <td class="text-muted small" th:text="${#temporals.format(m.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+            <td class="text-end">
+              <form th:action="@{|/institution/approvals/${m.membershipId}/approve|}" method="post" class="d-inline">
+                <button class="btn btn-success btn-sm" title="Approuver">
+                  <i class="bi bi-check-lg me-1"></i>Approuver
+                </button>
+              </form>
+              <form th:action="@{|/institution/approvals/${m.membershipId}/reject|}" method="post" class="d-inline ms-1">
+                <button class="btn btn-outline-danger btn-sm" title="Refuser"
+                        onclick="return confirm('Voulez-vous vraiment refuser cette demande ?')">
+                  <i class="bi bi-x-lg me-1"></i>Refuser
+                </button>
+              </form>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    .avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</div>
+</html>

@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/eduforge
+    username: eduforge
+    password: eduforge
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.springframework.security: info
+
+# Clé API Gemini pour le développement
+eduforge:
+  ai:
+    gemini-api-key: AIzaSyBPu5pcRqDah_j0Zj0WAwty0tPkPJmM_0E

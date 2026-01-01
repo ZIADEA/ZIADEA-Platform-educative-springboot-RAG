@@ -1,0 +1,75 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: eduforge
+
+  thymeleaf:
+    cache: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/eduforge
+    username: eduforge
+    password: eduforge
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+
+  flyway:
+    enabled: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO
+    com.eduforge.platform: DEBUG
+    org.hibernate.SQL: DEBUG
+
+app:
+  files:
+    uploadDir: ./data/uploads
+    maxBytes: 31457280
+    allowedExtensions: pdf,pptx,txt
+
+  rag:
+    chunkSize: 900
+    overlap: 120
+    topK: 5
+
+  ai:
+    provider: GEMINI
+    gemini:
+      apiKey: ${GEMINI_API_KEY:}
+      model: gemini-2.5-flash
+      timeoutSeconds: 25
+
+  quiz:
+    defaultPassThreshold: 70
+    minQuestions: 6
+    maxQuestions: 10
+
+# Compat : certains services utilisent le préfixe "eduforge.*" (AppProperties)
+eduforge:
+  storage:
+    uploadDir: ${app.files.uploadDir:./data/uploads}
+  rag:
+    topK: ${app.rag.topK:5}
+    chunkChars: 900

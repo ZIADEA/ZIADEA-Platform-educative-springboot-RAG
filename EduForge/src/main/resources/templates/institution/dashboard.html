@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1 fw-bold">Tableau de bord</h2>
+      <p class="text-muted mb-0">Gérez votre institution et vos ressources</p>
+    </div>
+    <a th:href="@{/institution/structure}" class="btn btn-primary">
+      <i class="bi bi-diagram-3 me-2"></i>Gérer la structure
+    </a>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card stat-card stat-primary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${programsCount != null ? programsCount : 0}">0</div>
+              <div class="stat-label">Programmes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <a th:href="@{/institution/members(tab='profs')}" class="text-decoration-none">
+        <div class="card stat-card stat-success h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon bg-success bg-opacity-10 text-success">
+                <i class="bi bi-person-workspace"></i>
+              </div>
+              <div>
+                <div class="stat-value" th:text="${profsCount != null ? profsCount : 0}">0</div>
+                <div class="stat-label">Professeurs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <a th:href="@{/institution/members(tab='students')}" class="text-decoration-none">
+        <div class="card stat-card stat-info h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon bg-info bg-opacity-10 text-info">
+                <i class="bi bi-mortarboard"></i>
+              </div>
+              <div>
+                <div class="stat-value" th:text="${studentsCount != null ? studentsCount : 0}">0</div>
+                <div class="stat-label">Étudiants</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <a th:href="@{/institution/approvals}" class="text-decoration-none">
+        <div class="card stat-card stat-warning h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                <i class="bi bi-hourglass-split"></i>
+              </div>
+              <div>
+                <div class="stat-value" th:text="${pendingCount != null ? pendingCount : 0}">0</div>
+                <div class="stat-label">En attente</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-lightning-charge text-warning"></i>
+          <span>Actions rapides</span>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <a th:href="@{/institution/structure}" class="quick-action-btn h-100">
+                <i class="bi bi-diagram-3 text-primary"></i>
+                <span class="fw-semibold">Structure pédagogique</span>
+                <small class="text-muted">Programmes, niveaux, matières</small>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a th:href="@{/institution/members}" class="quick-action-btn h-100">
+                <i class="bi bi-people text-success"></i>
+                <span class="fw-semibold">Membres affiliés</span>
+                <small class="text-muted">Professeurs et étudiants</small>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a th:href="@{/institution/approvals}" class="quick-action-btn h-100">
+                <i class="bi bi-person-check text-warning"></i>
+                <span class="fw-semibold">Approbations</span>
+                <small class="text-muted">Demandes en attente</small>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a th:href="@{/institution/library}" class="quick-action-btn h-100">
+                <i class="bi bi-collection text-info"></i>
+                <span class="fw-semibold">Bibliothèque</span>
+                <small class="text-muted">Ressources partagées</small>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card h-100 border-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div class="card-body text-white d-flex flex-column">
+          <div class="mb-3">
+            <i class="bi bi-building fs-1 opacity-75"></i>
+          </div>
+          <h5 class="fw-bold">Votre Institution</h5>
+          <p class="opacity-90 flex-grow-1">
+            Gérez la structure de votre établissement, approuvez les demandes de professeurs et centralisez vos ressources.
+          </p>
+          <a th:href="@{/institution/profile}" class="btn btn-light btn-sm align-self-start">
+            <i class="bi bi-gear me-1"></i>Configurer
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</html>

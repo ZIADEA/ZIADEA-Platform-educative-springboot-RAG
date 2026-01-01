@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <!-- En-tête de la classe (style Google Classroom) -->
+  <div class="classroom-header mb-4">
+    <div class="card bg-primary text-white shadow">
+      <div class="card-body py-4">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h2 class="h3 mb-2" th:text="${classroom.title}">Nom de la classe</h2>
+            <div class="d-flex align-items-center gap-3">
+              <span class="badge bg-light text-dark fs-6">
+                <i class="bi bi-key me-1"></i> Code: <strong th:text="${classroom.code}">ABCD1234</strong>
+              </span>
+              <span class="small opacity-75">
+                <i class="bi bi-people me-1"></i> <span th:text="${studentCount}">0</span> étudiants
+              </span>
+              <span class="small opacity-75">
+                <i class="bi bi-book me-1"></i> <span th:text="${courseCount}">0</span> cours
+              </span>
+            </div>
+          </div>
+          <a th:href="@{/prof/classrooms}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left"></i> Retour
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets de navigation -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#stream" type="button">
+        <i class="bi bi-chat-square-text me-1"></i> Flux
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#courses-tab" type="button">
+        <i class="bi bi-book me-1"></i> Cours
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#students-tab" type="button">
+        <i class="bi bi-people me-1"></i> Étudiants
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- Onglet Flux (publications) -->
+    <div class="tab-pane fade show active" id="stream" role="tabpanel">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Formulaire de publication -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <form th:action="@{/prof/classrooms/{id}/posts(id=${classroom.id})}" method="post">
+                <div class="mb-3">
+                  <label class="form-label">Publier une annonce ou une ressource</label>
+                  <textarea class="form-control" name="content" rows="3" 
+                            placeholder="Écris quelque chose pour ta classe..." required></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="type" id="typeAnnounce" value="ANNOUNCEMENT" checked>
+                    <label class="btn btn-outline-primary btn-sm" for="typeAnnounce">
+                      <i class="bi bi-megaphone"></i> Annonce
+                    </label>
+                    <input type="radio" class="btn-check" name="type" id="typeResource" value="RESOURCE">
+                    <label class="btn btn-outline-primary btn-sm" for="typeResource">
+                      <i class="bi bi-file-earmark"></i> Ressource
+                    </label>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send"></i> Publier
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Liste des publications -->
+          <div th:if="${#lists.isEmpty(posts)}" class="text-center py-5 text-muted">
+            <i class="bi bi-chat-square-dots fs-1 d-block mb-3"></i>
+            <p>Aucune publication pour le moment.<br>Commence par publier une annonce !</p>
+          </div>
+
+          <div th:each="post : ${posts}" class="card shadow-sm mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle bg-primary text-white me-2">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  <div>
+                    <strong>Professeur</strong>
+                    <div class="text-muted small" th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy à HH:mm')}"></div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span th:if="${post.type == 'ANNOUNCEMENT'}" class="badge bg-info">
+                    <i class="bi bi-megaphone"></i> Annonce
+                  </span>
+                  <span th:if="${post.type == 'RESOURCE'}" class="badge bg-success">
+                    <i class="bi bi-file-earmark"></i> Ressource
+                  </span>
+                  <form th:action="@{/prof/classrooms/{cid}/posts/{pid}/delete(cid=${classroom.id}, pid=${post.id})}" 
+                        method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                            onclick="return confirm('Supprimer cette publication ?')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+              <p class="mb-0 post-content" th:text="${post.content}"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <!-- Carte code d'invitation -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+              <i class="bi bi-key me-1"></i> Code d'invitation
+            </div>
+            <div class="card-body text-center">
+              <div class="display-6 font-monospace text-primary mb-2" th:text="${classroom.code}">ABCD1234</div>
+              <p class="text-muted small mb-0">Partage ce code avec tes étudiants pour qu'ils rejoignent la classe</p>
+            </div>
+          </div>
+
+          <!-- Prochains cours -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-book me-1"></i> Cours de la classe</span>
+              <span class="badge bg-primary" th:text="${courseCount}">0</span>
+            </div>
+            <div class="card-body p-0">
+              <div th:if="${#lists.isEmpty(courses)}" class="p-3 text-muted text-center small">
+                Aucun cours lié
+              </div>
+              <ul class="list-group list-group-flush">
+                <li th:each="course : ${courses}" class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="bi bi-journal-text me-1 text-primary"></i>
+                    <span th:text="${course.title}">Cours</span>
+                  </div>
+                  <span th:if="${course.status.name() == 'PUBLISHED'}" class="badge bg-success">Publié</span>
+                  <span th:if="${course.status.name() == 'DRAFT'}" class="badge bg-secondary">Brouillon</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Cours -->
+    <div class="tab-pane fade" id="courses-tab" role="tabpanel">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Formulaire ajout cours -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <i class="bi bi-plus-circle me-1"></i> Ajouter un cours à cette classe
+            </div>
+            <div class="card-body">
+              <form th:action="@{/prof/classrooms/{id}/courses/attach(id=${classroom.id})}" method="post" class="row g-2">
+                <div class="col-md-8">
+                  <select name="courseId" class="form-select" required>
+                    <option value="">-- Sélectionne un cours --</option>
+                    <option th:each="c : ${allProfCourses}" th:value="${c.id}" th:text="${c.title}">Cours</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-link"></i> Lier le cours
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Liste des cours -->
+          <div th:if="${#lists.isEmpty(courses)}" class="text-center py-5 text-muted">
+            <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+            <p>Aucun cours lié à cette classe.<br>Ajoute un cours pour que tes étudiants puissent y accéder.</p>
+          </div>
+
+          <div th:each="course : ${courses}" class="card shadow-sm mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h5 class="mb-1">
+                    <a th:href="@{/prof/courses/{id}(id=${course.id})}" class="text-decoration-none" th:text="${course.title}">Titre du cours</a>
+                  </h5>
+                  <p class="text-muted small mb-2" th:text="${course.description}">Description</p>
+                  <div>
+                    <span th:if="${course.status.name() == 'PUBLISHED'}" class="badge bg-success">Publié</span>
+                    <span th:if="${course.status.name() == 'DRAFT'}" class="badge bg-secondary">Brouillon</span>
+                    <span class="badge bg-light text-dark ms-1">
+                      <i class="bi bi-calendar"></i>
+                      <span th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy')}"></span>
+                    </span>
+                  </div>
+                </div>
+                <form th:action="@{/prof/classrooms/{cid}/courses/{courseId}/detach(cid=${classroom.id}, courseId=${course.id})}" method="post">
+                  <button type="submit" class="btn btn-outline-danger btn-sm" 
+                          onclick="return confirm('Retirer ce cours de la classe ?')">
+                    <i class="bi bi-x-circle"></i> Retirer
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6><i class="bi bi-info-circle me-1"></i> À propos des cours</h6>
+              <p class="small text-muted mb-0">
+                Les cours que tu lies à cette classe seront accessibles à tous les étudiants inscrits. 
+                Assure-toi de publier tes cours pour qu'ils soient visibles.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Étudiants -->
+    <div class="tab-pane fade" id="students-tab" role="tabpanel">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Stats étudiants -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="avatar-circle bg-primary text-white" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                    <i class="bi bi-people"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h3 class="mb-0" th:text="${studentCount}">0</h3>
+                  <p class="text-muted mb-0">étudiants inscrits</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Liste des étudiants -->
+          <div th:if="${#lists.isEmpty(students)}" class="text-center py-5 text-muted">
+            <i class="bi bi-person-plus fs-1 d-block mb-3"></i>
+            <p>Aucun étudiant inscrit pour le moment.<br>Partage le code <strong th:text="${classroom.code}">CODE</strong> pour inviter des étudiants.</p>
+          </div>
+
+          <div class="card shadow-sm" th:if="${!#lists.isEmpty(students)}">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Étudiant</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="student : ${students}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-circle bg-secondary text-white me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                          <span th:text="${#strings.substring(student.fullName, 0, 2)}">XX</span>
+                        </div>
+                        <div>
+                          <a th:href="@{/student/{id}/profile(id=${student.id}, classroomId=${classroom.id})}" 
+                             class="text-decoration-none fw-medium" th:text="${student.fullName}">Nom Prénom</a>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-muted" th:text="${student.email}">email@example.com</td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <a th:href="@{/student/{id}/profile(id=${student.id}, classroomId=${classroom.id})}" 
+                           class="btn btn-outline-primary" title="Voir le profil">
+                          <i class="bi bi-person-circle"></i>
+                        </a>
+                        <form th:action="@{/prof/classrooms/{cid}/students/{sid}/remove(cid=${classroom.id}, sid=${student.id})}" 
+                              method="post" class="d-inline">
+                          <button type="submit" class="btn btn-outline-danger"
+                                  title="Retirer de la classe"
+                                  onclick="return confirm('Retirer cet étudiant de la classe ?')">
+                            <i class="bi bi-person-x"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+              <i class="bi bi-share me-1"></i> Inviter des étudiants
+            </div>
+            <div class="card-body">
+              <p class="small text-muted">Partage ce code avec tes étudiants pour qu'ils rejoignent la classe:</p>
+              <div class="text-center">
+                <div class="display-5 font-monospace text-primary mb-2" th:text="${classroom.code}">ABCD1234</div>
+                <button class="btn btn-outline-primary btn-sm" onclick="navigator.clipboard.writeText(document.querySelector('.display-5').innerText)">
+                  <i class="bi bi-clipboard"></i> Copier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .post-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .classroom-header .card {
+      background: linear-gradient(135deg, var(--bs-primary) 0%, #4f46e5 100%) !important;
+    }
+  </style>
+</div>
+</html>

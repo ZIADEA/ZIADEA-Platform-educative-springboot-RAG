@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="sidebar" class="sidebar-card">
+  
+  <!-- Brand -->
+  <div class="sidebar-brand d-flex align-items-center gap-3">
+    <div class="brand-icon">
+      <i class="bi bi-mortarboard-fill"></i>
+    </div>
+    <div>
+      <div class="fw-bold" style="color: var(--ef-dark);">EduForge</div>
+      <div class="text-muted small">Plateforme IA</div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="sidebar-nav">
+    
+    <!-- General -->
+    <a class="sidebar-link" th:href="@{/}">
+      <i class="bi bi-house"></i>
+      <span>Accueil</span>
+    </a>
+    <a class="sidebar-link" th:href="@{/catalog}">
+      <i class="bi bi-grid-3x3-gap"></i>
+      <span>Catalogue</span>
+    </a>
+    <a class="sidebar-link" sec:authorize="isAuthenticated()" th:href="@{/dashboard}">
+      <i class="bi bi-speedometer2"></i>
+      <span>Tableau de bord</span>
+    </a>
+    <a class="sidebar-link" sec:authorize="isAuthenticated()" th:href="@{/messages}">
+      <i class="bi bi-envelope"></i>
+      <span>Messages</span>
+    </a>
+
+    <!-- Admin Section -->
+    <div sec:authorize="hasRole('ADMIN')">
+      <div class="sidebar-section">Administration</div>
+      <a class="sidebar-link" th:href="@{/admin/dashboard}">
+        <i class="bi bi-graph-up"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/admin/users}">
+        <i class="bi bi-people"></i>
+        <span>Utilisateurs</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/admin/courses}">
+        <i class="bi bi-journal-text"></i>
+        <span>Cours</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/stats/admin}">
+        <i class="bi bi-bar-chart"></i>
+        <span>Statistiques</span>
+      </a>
+    </div>
+
+    <!-- Institution Section -->
+    <div sec:authorize="hasRole('INSTITUTION_MANAGER')">
+      <div class="sidebar-section">Institution</div>
+      <a class="sidebar-link" th:href="@{/institution/dashboard}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/institution/profile}">
+        <i class="bi bi-building"></i>
+        <span>Profil</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/institution/structure}">
+        <i class="bi bi-diagram-3"></i>
+        <span>Structure</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/institution/approvals}">
+        <i class="bi bi-person-check"></i>
+        <span>Approbations</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/institution/library}">
+        <i class="bi bi-collection"></i>
+        <span>Bibliothèque</span>
+      </a>
+    </div>
+
+    <!-- Professor Section -->
+    <div sec:authorize="hasRole('PROF')">
+      <div class="sidebar-section">Professeur</div>
+      <a class="sidebar-link" th:href="@{/prof/dashboard}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/prof/courses}">
+        <i class="bi bi-journal-richtext"></i>
+        <span>Mes cours</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/prof/classrooms}">
+        <i class="bi bi-people-fill"></i>
+        <span>Mes classes</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/prof/exam}">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>Examens</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/profile}">
+        <i class="bi bi-person-circle"></i>
+        <span>Mon profil</span>
+      </a>
+    </div>
+
+    <!-- Student Section -->
+    <div sec:authorize="hasRole('ETUDIANT')">
+      <div class="sidebar-section">Étudiant</div>
+      <a class="sidebar-link" th:href="@{/student/dashboard}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/student/courses}">
+        <i class="bi bi-book"></i>
+        <span>Mes cours</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/student/classes}">
+        <i class="bi bi-mortarboard"></i>
+        <span>Mes classes</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/student/reviewbook}">
+        <i class="bi bi-journal-bookmark"></i>
+        <span>ReviewBook</span>
+      </a>
+      <a class="sidebar-link" th:href="@{/profile}">
+        <i class="bi bi-person-circle"></i>
+        <span>Mon profil</span>
+      </a>
+    </div>
+
+    <!-- Auth Actions -->
+    <div class="mt-3 p-2 border-top">
+      <a class="sidebar-link" sec:authorize="!isAuthenticated()" th:href="@{/login}">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Se connecter</span>
+      </a>
+
+      <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="m-0">
+        <button class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
+          <i class="bi bi-box-arrow-left"></i>
+          <span>Déconnexion</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{/my-institutions}">Mes Institutions</a></li>
+        <li class="breadcrumb-item active" th:text="${institution.name}">Institution</li>
+      </ol>
+    </nav>
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="h3 mb-1">
+          <i class="bi bi-collection me-2"></i>Bibliothèque
+        </h2>
+        <p class="text-muted mb-0" th:text="${institution.name}">Institution</p>
+      </div>
+      <a th:href="@{/my-institutions}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      </a>
+    </div>
+
+    <!-- Liste des ressources -->
+    <div th:if="${#lists.isEmpty(resources)}" class="text-center py-5">
+      <i class="bi bi-folder-x text-muted fs-1 d-block mb-3"></i>
+      <p class="text-muted">Aucune ressource disponible dans cette bibliothèque pour le moment.</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${#lists.isEmpty(resources)}">
+      <div class="col" th:each="res : ${resources}">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-start mb-3">
+              <div class="flex-shrink-0 me-3">
+                <div class="bg-info text-white rounded d-flex align-items-center justify-content-center" 
+                     style="width: 45px; height: 45px;">
+                  <i class="bi bi-file-earmark-pdf fs-4" th:if="${res.fileType == 'PDF'}"></i>
+                  <i class="bi bi-file-earmark-word fs-4" th:if="${res.fileType == 'DOCX'}"></i>
+                  <i class="bi bi-file-earmark-text fs-4" th:if="${res.fileType == 'TXT'}"></i>
+                  <i class="bi bi-file-earmark fs-4" th:unless="${res.fileType == 'PDF' || res.fileType == 'DOCX' || res.fileType == 'TXT'}"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="card-title mb-1" th:text="${res.title}">Titre</h6>
+                <p class="text-muted small mb-0">
+                  <span class="badge bg-secondary" th:text="${res.fileType}">Type</span>
+                </p>
+              </div>
+            </div>
+            
+            <p class="card-text small text-muted mb-3" th:if="${res.description}" 
+               th:text="${#strings.abbreviate(res.description, 100)}">Description</p>
+            
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+              <span th:text="${#temporals.format(res.createdAt, 'dd/MM/yyyy')}">Date</span>
+              <span th:if="${res.fileSize != null}">
+                <i class="bi bi-file-earmark me-1"></i>
+                <span th:text="${#numbers.formatDecimal(res.fileSize / 1024 / 1024, 1, 2)} + ' MB'">Taille</span>
+              </span>
+            </div>
+          </div>
+          
+          <div class="card-footer bg-transparent">
+            <div class="d-grid gap-2">
+              <a th:href="@{/my-institutions/{instId}/library/download/{resId}(instId=${institution.id}, resId=${res.id})}" 
+                 class="btn btn-sm btn-primary" download>
+                <i class="bi bi-download me-1"></i>Télécharger
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

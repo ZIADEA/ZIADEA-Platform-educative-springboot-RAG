@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Accès interdit', ~{::content})}">
+
+<div th:fragment="content" class="py-4">
+  <h1 class="h3">Accès interdit (403)</h1>
+  <p class="text-muted">Tu n’as pas les droits nécessaires pour accéder à cette page.</p>
+  <div class="alert alert-warning" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+  <a class="btn btn-outline-primary" th:href="@{/dashboard}">Retour au dashboard</a>
+</div>
+</html>

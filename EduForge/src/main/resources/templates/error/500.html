@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Erreur 500', ~{::content})}">
+
+<div th:fragment="content" class="py-4">
+  <h1 class="h3">Erreur 500</h1>
+  <p class="text-muted">Une erreur interne est survenue.</p>
+  <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+  <a class="btn btn-outline-primary" th:href="@{/}">Retour à l’accueil</a>
+</div>
+</html>

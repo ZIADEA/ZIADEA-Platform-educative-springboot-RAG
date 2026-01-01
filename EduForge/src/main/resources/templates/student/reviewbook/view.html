@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a th:href="@{/student/reviewbook}">Mes documents</a></li>
+      <li class="breadcrumb-item active" th:text="${book.title}">Document</li>
+    </ol>
+  </nav>
+
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+    <i class="bi bi-x-circle me-2"></i><span th:text="${error}">Erreur</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <div th:if="${flashSuccess}" class="alert alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle me-2"></i><span th:text="${flashSuccess}">Succès</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Info document -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>
+            <span th:switch="${book.fileType.name()}">
+              <i th:case="'PDF'" class="bi bi-file-earmark-pdf text-danger me-2"></i>
+              <i th:case="'TXT'" class="bi bi-file-earmark-text text-primary me-2"></i>
+              <i th:case="'IMAGE'" class="bi bi-file-earmark-image text-success me-2"></i>
+            </span>
+            <span th:text="${book.title}">Titre</span>
+          </span>
+          <span th:switch="${book.status.name()}">
+            <span th:case="'PENDING'" class="badge bg-warning text-dark">En attente</span>
+            <span th:case="'PROCESSING'" class="badge bg-info">Traitement en cours...</span>
+            <span th:case="'READY'" class="badge bg-success">Prêt</span>
+            <span th:case="'FAILED'" class="badge bg-danger">Erreur</span>
+          </span>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Fichier original:</dt>
+            <dd class="col-sm-8" th:text="${book.originalFilename}">fichier.pdf</dd>
+            
+            <dt class="col-sm-4">Type:</dt>
+            <dd class="col-sm-8" th:text="${book.fileType.name()}">PDF</dd>
+            
+            <dt class="col-sm-4">Uploadé le:</dt>
+            <dd class="col-sm-8" th:text="${#temporals.format(book.createdAt, 'dd/MM/yyyy à HH:mm')}">Date</dd>
+            
+            <dt class="col-sm-4" th:if="${book.processedAt}">Traité le:</dt>
+            <dd class="col-sm-8" th:if="${book.processedAt}" 
+                th:text="${#temporals.format(book.processedAt, 'dd/MM/yyyy à HH:mm')}">Date</dd>
+          </dl>
+
+          <div th:if="${book.hasFailed()}" class="alert alert-danger mt-3 mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Erreur:</strong> <span th:text="${book.errorMessage}">Message d'erreur</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu extrait -->
+      <div class="card shadow-sm" th:if="${book.ready}">
+        <div class="card-header">
+          <i class="bi bi-file-text me-2"></i>Contenu extrait
+          <span class="badge bg-secondary ms-2" 
+                th:text="${book.extractedText != null ? #strings.length(book.extractedText) + ' caractères' : '0 caractères'}">
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+            <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;"
+                 th:text="${book.extractedText != null ? (#strings.length(book.extractedText) > 5000 ? #strings.substring(book.extractedText, 0, 5000) + '...' : book.extractedText) : 'Aucun contenu'}">
+            </pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- En attente de traitement -->
+      <div class="card shadow-sm" th:if="${book.pending || book.status.name() == 'PROCESSING'}">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <h5>Traitement en cours...</h5>
+          <p class="text-muted">L'extraction du texte peut prendre quelques secondes. Actualise la page pour voir le résultat.</p>
+          <a th:href="@{/student/reviewbook/{id}(id=${book.id})}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-clockwise me-2"></i>Actualiser
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Actions -->
+      <div class="card shadow-sm mb-3" th:if="${book.ready}">
+        <div class="card-header bg-success text-white">
+          <i class="bi bi-lightning me-2"></i>Générer un Quiz
+        </div>
+        <div class="card-body">
+          <p class="small text-muted">
+            Génère un quiz personnalisé à partir du contenu de ce document grâce à l'IA.
+          </p>
+          <form th:action="@{/student/reviewbook/{id}/quiz(id=${book.id})}" method="get">
+            <div class="mb-3">
+              <label class="form-label">Nombre de questions</label>
+              <select name="count" class="form-select">
+                <option value="5">5 questions</option>
+                <option value="10" selected>10 questions</option>
+                <option value="15">15 questions</option>
+                <option value="20">20 questions</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Focus (optionnel)</label>
+              <input type="text" name="focus" class="form-control" 
+                     placeholder="Ex: définitions, formules...">
+            </div>
+            <button type="submit" class="btn btn-success w-100">
+              <i class="bi bi-lightning me-2"></i>Lancer le Quiz
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Infos -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-header">
+          <i class="bi bi-info-circle me-2"></i>Informations
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled small text-muted mb-0">
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-1"></i>
+              Le texte est extrait automatiquement
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-1"></i>
+              Les images sont traitées par OCR (Gemini)
+            </li>
+            <li>
+              <i class="bi bi-check-circle text-success me-1"></i>
+              Quiz générés par IA
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Supprimer -->
+      <div class="card shadow-sm border-danger">
+        <div class="card-body">
+          <form th:action="@{/student/reviewbook/{id}/delete(id=${book.id})}" method="post">
+            <button type="submit" class="btn btn-outline-danger w-100"
+                    onclick="return confirm('Supprimer ce document ?')">
+              <i class="bi bi-trash me-2"></i>Supprimer
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1 fw-bold">Membres affiliés</h2>
+      <p class="text-muted mb-0">Liste des professeurs et étudiants approuvés</p>
+    </div>
+    <a th:href="@{/institution/approvals}" class="btn btn-outline-primary">
+      <i class="bi bi-hourglass-split me-2"></i>Demandes en attente
+    </a>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card stat-card stat-success h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-success bg-opacity-10 text-success">
+              <i class="bi bi-person-workspace"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${profsCount}">0</div>
+              <div class="stat-label">Professeurs affiliés</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card stat-card stat-primary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+              <i class="bi bi-mortarboard"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${studentsCount}">0</div>
+              <div class="stat-label">Étudiants affiliés</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" th:classappend="${activeTab == 'profs' ? 'active' : ''}"
+         th:href="@{/institution/members(tab='profs')}">
+        <i class="bi bi-person-workspace me-2"></i>Professeurs
+        <span class="badge bg-success ms-2" th:text="${profsCount}">0</span>
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" th:classappend="${activeTab == 'students' ? 'active' : ''}"
+         th:href="@{/institution/members(tab='students')}">
+        <i class="bi bi-mortarboard me-2"></i>Étudiants
+        <span class="badge bg-primary ms-2" th:text="${studentsCount}">0</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Professeurs Tab -->
+  <div th:if="${activeTab == 'profs'}">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-person-workspace me-2 text-success"></i>Professeurs affiliés</h5>
+      </div>
+      <div class="card-body">
+        <div th:if="${#lists.isEmpty(affiliatedProfs)}" class="text-center text-muted py-5">
+          <i class="bi bi-person-x display-4"></i>
+          <p class="mt-3">Aucun professeur affilié pour le moment.</p>
+          <a th:href="@{/institution/approvals}" class="btn btn-outline-primary btn-sm">
+            Voir les demandes en attente
+          </a>
+        </div>
+        
+        <div th:unless="${#lists.isEmpty(affiliatedProfs)}" class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Professeur</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Date d'inscription</th>
+                <th class="text-center">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="prof : ${affiliatedProfs}">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px; font-size: 14px;">
+                      <span th:text="${#strings.substring(prof.fullName, 0, 2).toUpperCase()}">AB</span>
+                    </div>
+                    <div>
+                      <div class="fw-semibold" th:text="${prof.fullName}">Nom du professeur</div>
+                      <small class="text-muted">Professeur</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <a th:href="'mailto:' + ${prof.email}" th:text="${prof.email}" class="text-decoration-none">email@example.com</a>
+                </td>
+                <td>
+                  <span th:if="${prof.phone != null}" th:text="${prof.phone}">+XXX</span>
+                  <span th:unless="${prof.phone != null}" class="text-muted">-</span>
+                </td>
+                <td th:text="${#temporals.format(prof.createdAt, 'dd/MM/yyyy')}">01/01/2025</td>
+                <td class="text-center">
+                  <span class="badge bg-success">Affilié</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Étudiants Tab -->
+  <div th:if="${activeTab == 'students'}">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-mortarboard me-2 text-primary"></i>Étudiants affiliés</h5>
+      </div>
+      <div class="card-body">
+        <div th:if="${#lists.isEmpty(affiliatedStudents)}" class="text-center text-muted py-5">
+          <i class="bi bi-person-x display-4"></i>
+          <p class="mt-3">Aucun étudiant affilié pour le moment.</p>
+          <a th:href="@{/institution/approvals}" class="btn btn-outline-primary btn-sm">
+            Voir les demandes en attente
+          </a>
+        </div>
+        
+        <div th:unless="${#lists.isEmpty(affiliatedStudents)}" class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Étudiant</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Date d'inscription</th>
+                <th class="text-center">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="student : ${affiliatedStudents}">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px; font-size: 14px;">
+                      <span th:text="${#strings.substring(student.fullName, 0, 2).toUpperCase()}">AB</span>
+                    </div>
+                    <div>
+                      <div class="fw-semibold" th:text="${student.fullName}">Nom de l'étudiant</div>
+                      <small class="text-muted">Étudiant</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <a th:href="'mailto:' + ${student.email}" th:text="${student.email}" class="text-decoration-none">email@example.com</a>
+                </td>
+                <td>
+                  <span th:if="${student.phone != null}" th:text="${student.phone}">+XXX</span>
+                  <span th:unless="${student.phone != null}" class="text-muted">-</span>
+                </td>
+                <td th:text="${#temporals.format(student.createdAt, 'dd/MM/yyyy')}">01/01/2025</td>
+                <td class="text-center">
+                  <span class="badge bg-success">Affilié</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</html>

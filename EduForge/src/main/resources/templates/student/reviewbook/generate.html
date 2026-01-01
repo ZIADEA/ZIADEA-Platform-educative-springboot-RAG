@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow">
+          <div class="card-header bg-success text-white">
+            <h4 class="mb-0">
+              <i class="bi bi-magic me-2"></i>Générer un cours avec IA
+            </h4>
+          </div>
+          <div class="card-body">
+            <!-- Messages flash -->
+            <div th:if="${flashError}" class="alert alert-danger alert-dismissible fade show">
+              <span th:text="${flashError}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="alert alert-info mb-4">
+              <i class="bi bi-info-circle me-2"></i>
+              Décris le sujet que tu veux étudier. L'IA va générer un cours complet et structuré pour toi !
+            </div>
+
+            <form th:action="@{/student/reviewbook/generate}" method="post">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Titre du cours <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="title" required
+                       placeholder="Ex: Les équations du second degré">
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Décris ce que tu veux apprendre <span class="text-danger">*</span></label>
+                <textarea class="form-control" name="prompt" rows="8" required
+                          placeholder="Ex: Je veux comprendre les équations du second degré en mathématiques : définition, méthode de résolution (discriminant), exemples concrets, et applications pratiques."></textarea>
+                <div class="form-text">
+                  Plus tu es précis, meilleur sera le cours généré. Indique le niveau souhaité, les points clés à couvrir, etc.
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-end">
+                <a th:href="@{/student/reviewbook}" class="btn btn-outline-secondary">
+                  <i class="bi bi-x-circle me-1"></i>Annuler
+                </a>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-magic me-1"></i>Générer le cours
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

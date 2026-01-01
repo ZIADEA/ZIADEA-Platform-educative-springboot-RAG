@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+
+<div th:fragment="content">
+  
+  <!-- Hero Section -->
+  <div class="hero-section mb-4">
+    <div class="position-relative">
+      <div class="row align-items-center">
+        <div class="col-lg-7">
+          <span class="badge bg-white text-primary mb-3">
+            <i class="bi bi-stars me-1"></i>Plateforme educative intelligente
+          </span>
+          <h1 class="display-5 fw-bold mb-3">
+            Apprenez et enseignez avec EduForge
+          </h1>
+          <p class="lead opacity-90 mb-4">
+            EduForge est une plateforme complete pour la gestion de cours, classes virtuelles 
+            et evaluations. Professeurs et etudiants collaborent efficacement.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-light btn-lg px-4" th:href="@{/catalog}">
+              <i class="bi bi-search me-2"></i>Explorer le catalogue
+            </a>
+            <a class="btn btn-outline-light btn-lg px-4" th:href="@{/register}" sec:authorize="!isAuthenticated()">
+              <i class="bi bi-person-plus me-2"></i>Creer un compte
+            </a>
+            <a class="btn btn-outline-light btn-lg px-4" th:href="@{/dashboard}" sec:authorize="isAuthenticated()">
+              <i class="bi bi-speedometer2 me-2"></i>Mon dashboard
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-5 d-none d-lg-block text-end">
+          <i class="bi bi-mortarboard" style="font-size: 12rem; opacity: 0.2;"></i>
+        </div>
+      </div>
+      
+      <div class="mt-4 pt-3 border-top border-white border-opacity-25">
+        <div class="row text-center">
+          <div class="col-4">
+            <div class="h3 fw-bold mb-0" th:text="${publishedCount != null ? publishedCount : 7}">0</div>
+            <small class="opacity-75">Cours publies</small>
+          </div>
+          <div class="col-4">
+            <div class="h3 fw-bold mb-0" th:text="${usersCount != null ? usersCount : 6}">0</div>
+            <small class="opacity-75">Utilisateurs</small>
+          </div>
+          <div class="col-4">
+            <div class="h3 fw-bold mb-0" th:text="${institutionsCount != null ? institutionsCount : 1}">0</div>
+            <small class="opacity-75">Institutions</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <h2 class="h4 fw-bold mb-3">
+        <i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>
+        Fonctionnalites principales
+      </h2>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body text-center p-4">
+          <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+               style="width: 64px; height: 64px;">
+            <i class="bi bi-journal-richtext text-primary fs-3"></i>
+          </div>
+          <h5 class="fw-semibold">Gestion de cours</h5>
+          <p class="text-muted small mb-0">
+            Creez des cours avec texte et documents PDF ou TXT. Publication publique ou privee.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body text-center p-4">
+          <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+               style="width: 64px; height: 64px;">
+            <i class="bi bi-people-fill text-success fs-3"></i>
+          </div>
+          <h5 class="fw-semibold">Classes virtuelles</h5>
+          <p class="text-muted small mb-0">
+            Gerez vos classes avec codes d'acces. Les etudiants rejoignent facilement.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body text-center p-4">
+          <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+               style="width: 64px; height: 64px;">
+            <i class="bi bi-clipboard-check text-warning fs-3"></i>
+          </div>
+          <h5 class="fw-semibold">Quiz et examens</h5>
+          <p class="text-muted small mb-0">
+            Generation automatique de quiz bases sur le contenu des cours.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body text-center p-4">
+          <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+               style="width: 64px; height: 64px;">
+            <i class="bi bi-building text-info fs-3"></i>
+          </div>
+          <h5 class="fw-semibold">Institutions</h5>
+          <p class="text-muted small mb-0">
+            Ecoles et universites gerent leurs filieres, niveaux et etudiants.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Types Section -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card h-100 border-0" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+        <div class="card-body text-white p-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-2 p-2" style="background: rgba(255,255,255,0.2);">
+              <i class="bi bi-person-workspace fs-4"></i>
+            </div>
+            <h3 class="h5 fw-bold mb-0">Pour les professeurs</h3>
+          </div>
+          <ul class="mb-0 opacity-90">
+            <li class="mb-2">Creez des cours avec texte et fichiers PDF/TXT</li>
+            <li class="mb-2">Gerez vos classes et suivez vos etudiants</li>
+            <li class="mb-2">Creez des examens officiels avec notation</li>
+            <li>Consultez les resultats de vos etudiants</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100 border-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div class="card-body text-white p-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-2 p-2" style="background: rgba(255,255,255,0.2);">
+              <i class="bi bi-mortarboard fs-4"></i>
+            </div>
+            <h3 class="h5 fw-bold mb-0">Pour les etudiants</h3>
+          </div>
+          <ul class="mb-0 opacity-90">
+            <li class="mb-2">Rejoignez des classes avec un simple code</li>
+            <li class="mb-2">Accedez aux cours et telechargez les documents</li>
+            <li class="mb-2">Passez des quiz d'entrainement pour reviser</li>
+            <li>Validez vos cours avec les examens officiels</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="card bg-light border-0">
+    <div class="card-body text-center py-4">
+      <h5 class="fw-semibold mb-2">A propos d'EduForge</h5>
+      <p class="text-muted mb-0" style="max-width: 600px; margin: 0 auto;">
+        EduForge est une plateforme educative qui permet aux institutions, professeurs et etudiants 
+        de collaborer efficacement. Les professeurs publient des cours et creent des evaluations, 
+        les etudiants apprennent et valident leurs connaissances.
+      </p>
+    </div>
+  </div>
+
+</div>
+</html>

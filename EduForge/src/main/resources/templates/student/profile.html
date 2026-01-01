@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+
+  <nav aria-label="breadcrumb" class="mb-3" th:if="${classroom != null}">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a th:href="@{/prof/classrooms}">Classes</a></li>
+      <li class="breadcrumb-item"><a th:href="@{/prof/classrooms/{id}(id=${classroom.id})}" th:text="${classroom.title}">Classe</a></li>
+      <li class="breadcrumb-item active">Étudiant</li>
+    </ol>
+  </nav>
+
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center">
+          <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" 
+               style="width: 100px; height: 100px; font-size: 48px;">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <h4 th:text="${student.fullName}">Nom de l'étudiant</h4>
+          <p class="text-muted" th:text="${student.email}">email@example.com</p>
+          <span class="badge bg-info">Étudiant</span>
+          <span th:if="${student.affiliated}" class="badge bg-success ms-1">Affilié</span>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Informations</h6>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li class="mb-3">
+              <small class="text-muted d-block">Institution</small>
+              <strong th:if="${student.institutionName != null}" th:text="${student.institutionName}">Institution</strong>
+              <span th:unless="${student.institutionName != null}" class="text-muted fst-italic">Non affilié</span>
+            </li>
+            <li class="mb-3" th:if="${student.affiliated}">
+              <small class="text-muted d-block">Statut d'affiliation</small>
+              <span class="badge bg-success">Approuvé</span>
+            </li>
+            <li class="mb-3" th:if="${student.phone != null}">
+              <small class="text-muted d-block">Téléphone</small>
+              <span th:text="${student.phone}">+XXX XXX XXX</span>
+            </li>
+            <li class="mb-3">
+              <small class="text-muted d-block">Membre depuis</small>
+              <span th:text="${#temporals.format(student.createdAt, 'dd MMMM yyyy', new java.util.Locale('fr'))}">Date</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <!-- Statistiques globales -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card shadow-sm text-center stat-card stat-primary">
+            <div class="card-body">
+              <div class="stat-value" th:text="${examsAttempted}">0</div>
+              <div class="stat-label">Examens passés</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm text-center stat-card stat-success">
+            <div class="card-body">
+              <div class="stat-value" th:text="${quizzesAttempted}">0</div>
+              <div class="stat-label">Quiz complétés</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm text-center stat-card stat-info">
+            <div class="card-body">
+              <div class="stat-value" th:text="${coursesEnrolled}">0</div>
+              <div class="stat-label">Cours inscrits</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résultats des examens -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Historique des examens</h5>
+        </div>
+        <div class="card-body">
+          <div th:if="${#lists.isEmpty(examAttempts)}" class="text-center text-muted py-4">
+            <i class="bi bi-inbox display-6"></i>
+            <p class="mt-2">Aucun examen passé</p>
+          </div>
+          
+          <table th:unless="${#lists.isEmpty(examAttempts)}" class="table">
+            <thead>
+              <tr>
+                <th>Examen</th>
+                <th>Date</th>
+                <th>Score</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="attempt : ${examAttempts}">
+                <td th:text="${attempt.examTitle}">Titre examen</td>
+                <td th:text="${attempt.completedAt != null ? #temporals.format(attempt.completedAt, 'dd/MM/yyyy HH:mm') : 'En cours'}">Date</td>
+                <td>
+                  <strong th:if="${attempt.score != null}" th:text="${attempt.score} + '%'">0%</strong>
+                  <span th:unless="${attempt.score != null}" class="text-muted">-</span>
+                </td>
+                <td>
+                  <span class="badge" 
+                        th:classappend="${attempt.passed} ? 'bg-success' : 'bg-danger'"
+                        th:text="${attempt.passed} ? 'Réussi' : 'Échoué'"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Résultats des quiz -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Historique des quiz</h5>
+        </div>
+        <div class="card-body">
+          <div th:if="${#lists.isEmpty(quizAttempts)}" class="text-center text-muted py-4">
+            <i class="bi bi-inbox display-6"></i>
+            <p class="mt-2">Aucun quiz complété</p>
+          </div>
+          
+          <table th:unless="${#lists.isEmpty(quizAttempts)}" class="table">
+            <thead>
+              <tr>
+                <th>Quiz</th>
+                <th>Date</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="attempt : ${quizAttempts}">
+                <td th:text="${attempt.quizTitle}">Titre quiz</td>
+                <td th:text="${attempt.completedAt != null ? #temporals.format(attempt.completedAt, 'dd/MM/yyyy HH:mm') : '-'}">Date</td>
+                <td>
+                  <strong th:text="${attempt.correctAnswers} + '/' + ${attempt.totalQuestions}">0/0</strong>
+                  <span class="text-muted small" th:if="${attempt.totalQuestions > 0}">
+                    (<span th:text="${attempt.scorePercent}">0</span>%)
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</html>

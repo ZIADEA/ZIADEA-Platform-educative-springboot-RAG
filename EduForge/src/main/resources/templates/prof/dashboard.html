@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1 fw-bold">Tableau de bord</h2>
+      <p class="text-muted mb-0">Gérez vos cours, classes et examens</p>
+    </div>
+    <a th:href="@{/prof/courses}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Nouveau cours
+    </a>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card stat-card stat-primary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+              <i class="bi bi-journal-richtext"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${coursesCount != null ? coursesCount : 0}">0</div>
+              <div class="stat-label">Cours créés</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card stat-card stat-success h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-success bg-opacity-10 text-success">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${classroomsCount != null ? classroomsCount : 0}">0</div>
+              <div class="stat-label">Classes actives</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card stat-card stat-warning h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${examsCount != null ? examsCount : 0}">0</div>
+              <div class="stat-label">Examens créés</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card stat-card stat-info h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-info bg-opacity-10 text-info">
+              <i class="bi bi-person-check"></i>
+            </div>
+            <div>
+              <div class="stat-value" th:text="${studentsCount != null ? studentsCount : 0}">0</div>
+              <div class="stat-label">Étudiants inscrits</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-lightning-charge text-warning"></i>
+          <span>Actions rapides</span>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <a th:href="@{/prof/courses}" class="quick-action-btn h-100">
+                <i class="bi bi-journal-plus text-primary"></i>
+                <span class="fw-semibold">Créer un cours</span>
+                <small class="text-muted">Ajoutez du contenu pédagogique</small>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a th:href="@{/prof/classrooms}" class="quick-action-btn h-100">
+                <i class="bi bi-people-fill text-success"></i>
+                <span class="fw-semibold">Gérer les classes</span>
+                <small class="text-muted">Invitez vos étudiants</small>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a th:href="@{/prof/exams}" class="quick-action-btn h-100">
+                <i class="bi bi-file-earmark-plus text-warning"></i>
+                <span class="fw-semibold">Créer un examen</span>
+                <small class="text-muted">Évaluez vos étudiants</small>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a th:href="@{/stats/prof}" class="quick-action-btn h-100">
+                <i class="bi bi-graph-up-arrow text-info"></i>
+                <span class="fw-semibold">Voir les statistiques</span>
+                <small class="text-muted">Analysez les performances</small>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card h-100 border-0" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+        <div class="card-body text-white d-flex flex-column">
+          <div class="mb-3">
+            <i class="bi bi-robot fs-1 opacity-75"></i>
+          </div>
+          <h5 class="fw-bold">IA Générative</h5>
+          <p class="opacity-90 flex-grow-1">
+            Vos cours sont automatiquement indexés. Générez des quiz intelligents basés sur le contenu de vos documents.
+          </p>
+          <a th:href="@{/prof/courses}" class="btn btn-light btn-sm align-self-start">
+            <i class="bi bi-magic me-1"></i>Commencer
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</html>

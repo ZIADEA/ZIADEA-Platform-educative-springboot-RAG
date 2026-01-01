@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+              <i class="bi bi-plus-circle me-2"></i>Créer une nouvelle classe
+            </h4>
+          </div>
+          <div class="card-body">
+            <!-- Messages flash -->
+            <div th:if="${flashError}" class="alert alert-danger alert-dismissible fade show">
+              <span th:text="${flashError}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <form th:action="@{/institution/classrooms/create}" method="post">
+              <div class="mb-3">
+                <label class="form-label">Nom de la classe <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="title" required 
+                       placeholder="Ex: L3 Informatique - Groupe A">
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Matière (optionnel)</label>
+                <select class="form-select" name="subjectId">
+                  <option value="">-- Aucune matière --</option>
+                  <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}">Matière</option>
+                </select>
+                <div class="form-text">
+                  Associez une matière pour organiser vos classes.
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Professeur responsable <span class="text-danger">*</span></label>
+                <select class="form-select" name="profId" required>
+                  <option value="">-- Sélectionner un professeur --</option>
+                  <option th:each="prof : ${approvedProfs}" 
+                          th:value="${prof.id}" 
+                          th:text="${prof.fullName}">Professeur</option>
+                </select>
+                <div class="form-text">
+                  Par défaut, vous serez le responsable de cette classe.
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-end">
+                <a th:href="@{/institution/classrooms}" class="btn btn-outline-secondary">
+                  <i class="bi bi-x-circle me-1"></i>Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle me-1"></i>Créer la classe
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

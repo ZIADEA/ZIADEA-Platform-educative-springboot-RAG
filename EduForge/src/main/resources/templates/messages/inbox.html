@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">
+      <i class="bi bi-inbox me-2"></i>Messages reçus
+      <span class="badge bg-primary ms-2" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+    </h2>
+    <a th:href="@{/messages/compose}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i>Nouveau message
+    </a>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link" th:classappend="${activeTab == 'inbox'} ? 'active'" th:href="@{/messages/inbox}">
+        <i class="bi bi-inbox me-1"></i>Boîte de réception
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" th:classappend="${activeTab == 'sent'} ? 'active'" th:href="@{/messages/sent}">
+        <i class="bi bi-send me-1"></i>Envoyés
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" th:classappend="${activeTab == 'notifications'} ? 'active'" th:href="@{/messages/notifications}">
+        <i class="bi bi-bell me-1"></i>Notifications
+      </a>
+    </li>
+  </ul>
+
+  <!-- Message List -->
+  <div class="card shadow-sm">
+    <div th:if="${#lists.isEmpty(messages)}" class="card-body text-center text-muted py-5">
+      <i class="bi bi-inbox display-4"></i>
+      <p class="mt-3">Aucun message dans votre boîte de réception.</p>
+    </div>
+    
+    <ul class="list-group list-group-flush" th:if="${!#lists.isEmpty(messages)}">
+      <li class="list-group-item d-flex align-items-start" th:each="msg : ${messages}" 
+          th:classappend="${!msg.isRead} ? 'bg-light'">
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between">
+            <h6 class="mb-1" th:classappend="${!msg.isRead} ? 'fw-bold'">
+              <a th:href="@{/messages/view/{id}(id=${msg.id})}" class="text-decoration-none" th:text="${msg.subject}"></a>
+            </h6>
+            <small class="text-muted" th:text="${#temporals.format(msg.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
+          </div>
+          <p class="mb-1 small text-muted">
+            De : <span th:text="${senderNames != null and senderNames[msg.senderId] != null ? senderNames[msg.senderId] : 'Système'}"></span>
+          </p>
+        </div>
+        <form th:action="@{/messages/delete/{id}(id=${msg.id})}" method="post" class="ms-2">
+          <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ce message ?')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</div>
+</html>

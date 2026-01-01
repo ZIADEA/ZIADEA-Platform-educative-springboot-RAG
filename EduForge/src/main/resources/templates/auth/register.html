@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<div th:fragment="content" class="row justify-content-center">
+  <div class="col-12 col-lg-10 col-xl-8">
+    
+    <!-- Auth Header -->
+    <div class="text-center mb-4">
+      <div class="auth-logo mb-3">
+        <i class="bi bi-mortarboard-fill"></i>
+      </div>
+      <h1 class="h4 fw-bold mb-1">Créer un compte EduForge</h1>
+      <p class="text-muted">Rejoignez notre plateforme pédagogique intelligente</p>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-4">
+        
+        <div th:if="${formError}" class="alert alert-danger d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span th:text="${formError}"></span>
+        </div>
+
+        <form th:action="@{/register}" th:object="${form}" method="post" class="row g-3" id="registerForm">
+          
+          <!-- Informations de base -->
+          <div class="col-12">
+            <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-2">
+              <i class="bi bi-person-circle text-primary"></i>
+              <h5 class="mb-0 fw-semibold">Informations personnelles</h5>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">
+              <i class="bi bi-person text-muted me-1"></i>Nom complet <span class="text-danger">*</span>
+            </label>
+            <input class="form-control" th:field="*{fullName}" placeholder="Ex: DJERI-ALASSANI OUBENOUPOU"/>
+            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">
+              <i class="bi bi-envelope text-muted me-1"></i>Email <span class="text-danger">*</span>
+            </label>
+            <input class="form-control" th:field="*{email}" type="email" placeholder="exemple@mail.com"/>
+            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">
+              <i class="bi bi-lock text-muted me-1"></i>Mot de passe <span class="text-danger">*</span>
+            </label>
+            <input class="form-control" th:field="*{password}" type="password" minlength="6"/>
+            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Minimum 6 caractères</small>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">
+              <i class="bi bi-person-badge text-muted me-1"></i>Type de compte <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" th:field="*{accountType}" id="accountType" onchange="toggleInstitutionFields()">
+              <option value="">— Choisir le type de compte —</option>
+              <option value="ETUDIANT">🎓 Étudiant</option>
+              <option value="PROF">👨‍🏫 Professeur</option>
+              <option value="INSTITUTION">🏛️ Gestionnaire d'institution</option>
+            </select>
+            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('accountType')}" th:errors="*{accountType}"></div>
+          </div>
+
+          <!-- Section Institution (visible selon le type de compte) -->
+          <div class="col-12" id="institutionSection" style="display: none;">
+            <hr class="my-3">
+            <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-2">
+              <i class="bi bi-building text-primary"></i>
+              <h5 class="mb-0 fw-semibold" id="institutionTitle">Institution</h5>
+            </div>
+          </div>
+
+          <!-- Pour PROF: Affiliation à une institution existante -->
+          <div class="col-12" id="profAffiliationSection" style="display: none;">
+            <div class="alert alert-info border-0 d-flex align-items-start">
+              <i class="bi bi-info-circle-fill me-2 mt-1"></i>
+              <div>
+                <strong>Affiliation optionnelle</strong><br>
+                En tant que professeur, vous pouvez demander une affiliation à une institution existante.
+                Votre demande sera soumise à l'approbation du gestionnaire.
+              </div>
+            </div>
+            
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="wantsAffiliation" 
+                     th:field="*{wantsAffiliation}" onchange="toggleAffiliationFields()">
+              <label class="form-check-label" for="wantsAffiliation">
+                <i class="bi bi-link-45deg me-1"></i>Je souhaite m'affilier à une institution
+              </label>
+            </div>
+
+            <div id="affiliationFields" style="display: none;">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">
+                    <i class="bi bi-search text-muted me-1"></i>Rechercher une institution
+                  </label>
+                  <input type="text" class="form-control" id="institutionSearch" 
+                         placeholder="Tapez le nom de l'institution..." autocomplete="off">
+                  <div id="institutionResults" class="list-group mt-1" style="position: absolute; z-index: 1000;"></div>
+                  <input type="hidden" th:field="*{institutionId}" id="institutionIdField">
+                </div>
+                <div class="col-12" id="selectedInstitution" style="display: none;">
+                  <div class="alert alert-success d-flex align-items-center border-0">
+                    <i class="bi bi-building-check me-2"></i>
+                    <span><strong>Institution sélectionnée:</strong> <span id="selectedInstitutionName"></span></span>
+                    <button type="button" class="btn-close ms-auto" onclick="clearInstitutionSelection()"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pour INSTITUTION: Création d'une nouvelle institution -->
+          <div class="col-12" id="newInstitutionSection" style="display: none;">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">
+                  <i class="bi bi-building text-muted me-1"></i>Nom de l'institution <span class="text-danger">*</span>
+                </label>
+                <input class="form-control" th:field="*{institutionName}" placeholder="Ex: Université de Lomé"/>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">
+                  <i class="bi bi-tag text-muted me-1"></i>Type d'institution <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" th:field="*{institutionType}">
+                  <option value="">— Choisir —</option>
+                  <option value="UNIVERSITE">🎓 Université</option>
+                  <option value="ECOLE_SUPERIEURE">🏫 École Supérieure</option>
+                  <option value="LYCEE">📚 Lycée</option>
+                  <option value="COLLEGE">📖 Collège</option>
+                  <option value="CENTRE_FORMATION">🔧 Centre de Formation</option>
+                  <option value="AUTRE">📋 Autre</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">
+                  <i class="bi bi-globe text-muted me-1"></i>Pays <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" th:field="*{country}">
+                  <option value="">— Choisir —</option>
+                  <option value="Togo">🇹🇬 Togo</option>
+                  <option value="Bénin">🇧🇯 Bénin</option>
+                  <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+                  <option value="Sénégal">🇸🇳 Sénégal</option>
+                  <option value="Cameroun">🇨🇲 Cameroun</option>
+                  <option value="France">🇫🇷 France</option>
+                  <option value="Canada">🇨🇦 Canada</option>
+                  <option value="Belgique">🇧🇪 Belgique</option>
+                  <option value="Autre">🌍 Autre</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt text-muted me-1"></i>Ville <span class="text-danger">*</span>
+                </label>
+                <input class="form-control" th:field="*{city}" placeholder="Ex: Lomé"/>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">
+                  <i class="bi bi-telephone text-muted me-1"></i>Téléphone
+                </label>
+                <input class="form-control" th:field="*{phone}" placeholder="+228 XX XX XX XX"/>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">
+                  <i class="bi bi-signpost text-muted me-1"></i>Adresse
+                </label>
+                <input class="form-control" th:field="*{address}" placeholder="Adresse complète"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Boutons -->
+          <div class="col-12 mt-4">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a class="btn btn-outline-secondary" th:href="@{/login}">
+                <i class="bi bi-arrow-left me-1"></i>Retour
+              </a>
+              <button class="btn btn-primary px-4" type="submit">
+                <i class="bi bi-person-plus me-2"></i>Créer mon compte
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="text-center mt-4">
+      <span class="text-muted">Déjà inscrit ?</span>
+      <a th:href="@{/login}" class="ms-1 fw-semibold">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+      </a>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+function toggleInstitutionFields() {
+    const accountType = document.getElementById('accountType').value;
+    const institutionSection = document.getElementById('institutionSection');
+    const profSection = document.getElementById('profAffiliationSection');
+    const newInstSection = document.getElementById('newInstitutionSection');
+    const institutionTitle = document.getElementById('institutionTitle');
+    
+    // Reset
+    institutionSection.style.display = 'none';
+    profSection.style.display = 'none';
+    newInstSection.style.display = 'none';
+    
+    if (accountType === 'PROF') {
+        institutionSection.style.display = 'block';
+        profSection.style.display = 'block';
+        institutionTitle.textContent = 'Affiliation institutionnelle';
+    } else if (accountType === 'INSTITUTION') {
+        institutionSection.style.display = 'block';
+        newInstSection.style.display = 'block';
+        institutionTitle.textContent = 'Informations de l\'institution';
+    }
+}
+
+function toggleAffiliationFields() {
+    const checkbox = document.getElementById('wantsAffiliation');
+    const fields = document.getElementById('affiliationFields');
+    fields.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+function clearInstitutionSelection() {
+    document.getElementById('institutionIdField').value = '';
+    document.getElementById('selectedInstitution').style.display = 'none';
+    document.getElementById('institutionSearch').value = '';
+}
+
+// Recherche d'institution (simulation - à connecter à une API)
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('institutionSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                document.getElementById('institutionResults').innerHTML = '';
+                return;
+            }
+            
+            // Appel API pour rechercher les institutions
+            fetch('/api/institutions/search?q=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    const results = document.getElementById('institutionResults');
+                    results.innerHTML = data.map(inst => 
+                        `<a href="#" class="list-group-item list-group-item-action" 
+                            onclick="selectInstitution(${inst.id}, '${inst.name}')">${inst.name} - ${inst.city}</a>`
+                    ).join('');
+                })
+                .catch(err => console.log('Erreur recherche:', err));
+        });
+    }
+    
+    // Initialiser l'état au chargement
+    toggleInstitutionFields();
+});
+
+function selectInstitution(id, name) {
+    document.getElementById('institutionIdField').value = id;
+    document.getElementById('selectedInstitutionName').textContent = name;
+    document.getElementById('selectedInstitution').style.display = 'block';
+    document.getElementById('institutionResults').innerHTML = '';
+    document.getElementById('institutionSearch').value = '';
+}
+</script>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(${pageTitle}, ~{::content})}">
+<body>
+
+<div th:fragment="content">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+      
+      <div class="auth-card">
+        <div class="card">
+          <div class="card-body">
+            
+            <!-- Auth Header -->
+            <div class="auth-header">
+              <div class="auth-logo">
+                <i class="bi bi-mortarboard-fill"></i>
+              </div>
+              <h1 class="h4 fw-bold mb-1">Connexion</h1>
+              <p class="text-muted mb-0">Accédez à votre espace EduForge</p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${param.registered}" class="alert alert-success">
+              <i class="bi bi-check-circle me-2"></i>
+              Compte créé avec succès. Vous pouvez maintenant vous connecter.
+            </div>
+
+            <div th:if="${hasError}" class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Email ou mot de passe incorrect.
+            </div>
+
+            <!-- Login Form -->
+            <form th:action="@{/login}" method="post" class="vstack gap-3">
+              <div>
+                <label class="form-label">
+                  <i class="bi bi-envelope me-1"></i>Email
+                </label>
+                <input class="form-control" name="email" type="email" placeholder="votre@email.com" required/>
+              </div>
+              <div>
+                <label class="form-label">
+                  <i class="bi bi-lock me-1"></i>Mot de passe
+                </label>
+                <input class="form-control" name="password" type="password" placeholder="••••••••" required/>
+              </div>
+
+              <button class="btn btn-primary w-100 py-2" type="submit">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+              </button>
+
+              <div class="text-center">
+                <span class="text-muted">Pas de compte ?</span>
+                <a th:href="@{/register}" class="fw-semibold text-decoration-none">Créer un compte</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Accounts Card -->
+      <div class="card mt-4">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-info-circle text-primary"></i>
+          <span class="fw-semibold">Comptes de démonstration</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 test-accounts-table">
+              <thead>
+                <tr>
+                  <th class="ps-3">Rôle</th>
+                  <th>Email</th>
+                  <th class="pe-3">Mot de passe</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ps-3"><span class="badge bg-danger">Admin</span></td>
+                  <td><code>admin@eduforge.local</code></td>
+                  <td class="pe-3"><code>password123</code></td>
+                </tr>
+                <tr>
+                  <td class="ps-3"><span class="badge bg-primary">Prof</span></td>
+                  <td><code>prof@eduforge.local</code></td>
+                  <td class="pe-3"><code>password123</code></td>
+                </tr>
+                <tr>
+                  <td class="ps-3"><span class="badge bg-success">Étudiant</span></td>
+                  <td><code>student@eduforge.local</code></td>
+                  <td class="pe-3"><code>password123</code></td>
+                </tr>
+                <tr>
+                  <td class="ps-3"><span class="badge bg-info">Institution</span></td>
+                  <td><code>institution@eduforge.local</code></td>
+                  <td class="pe-3"><code>password123</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
