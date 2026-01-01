@@ -22,4 +22,4 @@ logging:
 # Clé API Gemini pour le développement
 eduforge:
   ai:
-    gemini-api-key: AIzaSyBPu5pcRqDah_j0Zj0WAwty0tPkPJmM_0E
+    gemini-api-key: "yourkey"
