@@ -6,7 +6,7 @@ DEMO : https://youtu.be/niIE1IVkrNQ?si=wR6zZcL30yrTMMtj
 ## Vue d'ensemble
 
 **EduForge** est une plateforme pédagogique complète développée avec **Spring Boot 3.x**, intégrant l'intelligence artificielle pour la génération de quiz, la notation automatique et la recherche sémantique (RAG - Retrieval-Augmented Generation). L'application supporte plusieurs rôles utilisateurs et offre un écosystème éducatif complet avec cours, quiz, examens, salles de classe virtuelles et institutions.
-ps : si t est de la filiere IATDSI et t aime pas le Proj hajji revoit pas vie bg 
+
 **Stack Technique:**
 - Backend: Spring Boot 3.4.0, Java 21
 - Base de données: PostgreSQL avec extension pgvector
